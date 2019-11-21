@@ -15,6 +15,6 @@ class Catalog {
         url = json['url'];
 
   Map toJson() {
-    return {'id': id, 'name': title, 'email': url};
+    return {'id': id, 'name': title, 'url': url};
   }
 }
