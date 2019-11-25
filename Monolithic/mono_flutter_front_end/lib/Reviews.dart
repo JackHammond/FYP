@@ -17,7 +17,7 @@ class Reviews extends StatelessWidget {
               padding: EdgeInsets.all(12.0),
               child: Text("Data passed to this page:",
                   style: TextStyle(fontWeight: FontWeight.w700))),
-          Text("Text: ${catalog.title}"),
+          Text("Text: ${catalog.color}"),
           Text("Counter: ${catalog.id}"),
           CircleAvatar(backgroundImage: NetworkImage(catalog.url)),
         ],
