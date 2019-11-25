@@ -1,123 +1,138 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-import 'API.dart';
-import 'Catalog.dart';
+Future<List<Catalog>> fetchProducts(http.Client client) async {
+  final response = await client.get('https://api.myjson.com/bins/xutvq');
+
+  // Use the compute function to run parseProducts in a separate isolate.
+  return compute(parseProducts, response.body);
+}
+
+// A function that converts a response body into a List<Product>.
+List<Catalog> parseProducts(String responseBody) {
+  final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
+
+  return parsed.map<Catalog>((json) => Catalog.fromJson(json)).toList();
+}
+
+class Catalog {
+  final int id;
+  final String title;
+  final String department;
+  final String color;
+  final String price;
+
+  Catalog({this.department, this.id, this.title, this.color, this.price});
+
+  factory Catalog.fromJson(Map<String, dynamic> json) {
+    return Catalog(
+      department: json['department'] as String ?? 'department is null',
+      id: json['id'] as int ?? 'id is null',
+      title: json['name'] as String?? 'name is null',
+      color: json['color'] as String?? 'color is null',
+      price: json['price'] as String?? 'price is null',
+    );
+  }
+}
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
-  build(context) {
+  Widget build(BuildContext context) {
+    final appTitle = 'Isolate Demo';
+
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'The Monolith',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomeScreen(),
+      title: appTitle,
+      home: MyHomePage(title: appTitle),
     );
   }
 }
 
-class MyHomeScreen extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
+  final String title;
+
+  MyHomePage({Key key, this.title}) : super(key: key);
+
   @override
-  createState() => _MyHomeScreenState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: FutureBuilder<List<Catalog>>(
+        future: fetchProducts(http.Client()),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) print(snapshot.error);
+
+          return snapshot.hasData
+              ? ProductList(catalog: snapshot.data)
+              : Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
+  }
 }
 
-class _MyHomeScreenState extends State {
-  var catalog = new List<Catalog>();
-  var _saved = new Set<Catalog>();
+class ProductList extends StatelessWidget {
+  final List<Catalog> catalog;
 
-  _getProducts() {
-    API.getProducts().then((response) {
-      setState(() {
-        Iterable list = json.decode(response.body);
-        catalog = list.map((model) => Catalog.fromJson(model)).toList();
-      });
-    });
-  }
-
-  initState() {
-    super.initState();
-    _getProducts();
-  }
-
-  dispose() {
-    super.dispose();
-  }
+  ProductList({Key key, this.catalog}) : super(key: key);
 
   @override
-  Widget build(context) {
-    return MaterialApp(
-        home: Scaffold(
-      appBar: AppBar(
-        title: Text('Hero Animation Demo'),
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
       ),
-      body: _buildCatalog(),
-    ));
-  }
-
-// void _addToBasket() {
-//   Navigator.of(context).push(
-//     MaterialPageRoute<void>(
-//       builder: (BuildContext context) {
-//         final Iterable<ListTile> tiles = _saved.map(
-//           (Catalog catalog) {
-//             return ListTile(
-//               title: Text(
-//                 catalog.name,
-//               ),
-//             );
-//           },
-//         );
-//         final List<Widget> divided = ListTile.divideTiles(
-//           context: context,
-//           tiles: tiles,
-//         ).toList();
-
-//         return Scaffold(
-//           appBar: AppBar(
-//             title: Text('Basket'),
-//           ),
-//           body: ListView(children: divided),
-//         );
-//       },
-//     ),
-//   );
-// }
-
-  _buildCatalog() {
-    return ListView.builder(
       itemCount: catalog.length,
       itemBuilder: (context, index) {
-        return Container(
-          child: ,
+        return GestureDetector(
+          child: Center(child: Text(catalog[index].color)),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetail(
+                  catalog: catalog[index],
+                ),
+              ),
+            );
+          },
         );
       },
     );
   }
+}
 
-  ListTile _buildRow(int index, BuildContext context) {
-    //final bool alreadySaved = _saved.contains(catalog[index]);
-    return ListTile(
-      title: Text(catalog[index].name),
-      //trailing: Icon(
-      //  alreadySaved ? Icons.favorite : Icons.favorite_border,
-        //color: alreadySaved ? Colors.red : null,
-      //),
-      //leading: CircleAvatar(backgroundImage: NetworkImage(catalog[index].url)),
-      leading: Text(catalog[index].price),
-      onTap: () {
-        // setState(() {
-        //   if (alreadySaved) {
-        //     _saved.remove(catalog[index]);
-        //   } else {
-        //     _saved.add(catalog[index]);
-        //   }
-        // });
-      },
+class ProductDetail extends StatelessWidget {
+  final Catalog catalog;
+
+  ProductDetail({Key key, @required this.catalog}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(catalog.title),
+      ),
+      body: Center(
+        child: Column(
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(16),
+            ),
+            Text(
+              catalog.department,
+              style: TextStyle(fontSize: 22),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
