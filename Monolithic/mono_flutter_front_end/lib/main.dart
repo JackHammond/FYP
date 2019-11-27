@@ -73,7 +73,7 @@ class _ProductListState extends State<ProductList> {
             Center(child: Text(widget.catalog[index].color)),
             RaisedButton(
               child: Text("Test Button"),
-              onPressed: null,
+              onPressed: _addToBasket(),
             )
           ])),
           onTap: () {
@@ -89,6 +89,9 @@ class _ProductListState extends State<ProductList> {
         );
       },
     );
+  }
+  _addToBasket(){
+    
   }
 }
 
