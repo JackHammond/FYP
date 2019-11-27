@@ -1,43 +1,8 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-Future<List<Catalog>> fetchProducts(http.Client client) async {
-  final response = await client.get('https://api.myjson.com/bins/xutvq');
-
-  // Use the compute function to run parseProducts in a separate isolate.
-  return compute(parseProducts, response.body);
-}
-
-// A function that converts a response body into a List<Product>.
-List<Catalog> parseProducts(String responseBody) {
-  final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
-
-  return parsed.map<Catalog>((json) => Catalog.fromJson(json)).toList();
-}
-
-class Catalog {
-  final int id;
-  final String title;
-  final String department;
-  final String color;
-  final String price;
-
-  Catalog({this.department, this.id, this.title, this.color, this.price});
-
-  factory Catalog.fromJson(Map<String, dynamic> json) {
-    return Catalog(
-      department: json['department'] as String ?? 'department is null',
-      id: json['id'] as int ?? 'id is null',
-      title: json['name'] as String?? 'name is null',
-      color: json['color'] as String?? 'color is null',
-      price: json['price'] as String?? 'price is null',
-    );
-  }
-}
+import 'Catalog.dart';
+import 'API.dart';
 
 void main() => runApp(MyApp());
 
@@ -53,19 +18,24 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   final String title;
 
   MyHomePage({Key key, this.title}) : super(key: key);
 
   @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
       ),
       body: FutureBuilder<List<Catalog>>(
-        future: fetchProducts(http.Client()),
+        future: API.fetchCatalog(http.Client()),
         builder: (context, snapshot) {
           if (snapshot.hasError) print(snapshot.error);
 
@@ -78,27 +48,40 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
-class ProductList extends StatelessWidget {
+class ProductList extends StatefulWidget {
   final List<Catalog> catalog;
 
   ProductList({Key key, this.catalog}) : super(key: key);
 
   @override
+  _ProductListState createState() => _ProductListState();
+}
+
+class _ProductListState extends State<ProductList> {
+  @override
   Widget build(BuildContext context) {
+    
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
       ),
-      itemCount: catalog.length,
+      itemCount: widget.catalog.length,
       itemBuilder: (context, index) {
         return GestureDetector(
-          child: Center(child: Text(catalog[index].color)),
+          child: Container(
+              child: Column(children: <Widget>[
+            Center(child: Text(widget.catalog[index].color)),
+            RaisedButton(
+              child: Text("Test Button"),
+              onPressed: null,
+            )
+          ])),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ProductDetail(
-                  catalog: catalog[index],
+                  catalog: widget.catalog[index],
                 ),
               ),
             );
