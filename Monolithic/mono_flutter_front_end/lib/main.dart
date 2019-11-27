@@ -50,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class ProductList extends StatefulWidget {
   final List<Catalog> catalog;
+  final Set<Catalog> _saved = Set<Catalog>();
 
   ProductList({Key key, this.catalog}) : super(key: key);
 
@@ -60,38 +61,50 @@ class ProductList extends StatefulWidget {
 class _ProductListState extends State<ProductList> {
   @override
   Widget build(BuildContext context) {
-    
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
       ),
       itemCount: widget.catalog.length,
       itemBuilder: (context, index) {
-        return GestureDetector(
-          child: Container(
-              child: Column(children: <Widget>[
-            Center(child: Text(widget.catalog[index].color)),
+        final bool alreadySaved = widget._saved.contains(widget.catalog[index]);
+        return Column(
+          children: <Widget>[
             RaisedButton(
-              child: Text("Test Button"),
-              onPressed: _addToBasket(),
-            )
-          ])),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProductDetail(
-                  catalog: widget.catalog[index],
-                ),
-              ),
-            );
-          },
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Center(child: Text(widget.catalog[index].color)),
+                    Icon(
+                      alreadySaved ? Icons.favorite : Icons.favorite_border,
+                      color: alreadySaved ? Colors.red : null,
+                    ),
+                  ]),
+              onPressed: () {
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => ProductDetail(
+                //       catalog: widget.catalog[index],
+                //     ),
+                //   ),
+                // );
+                setState(() {
+                  if (alreadySaved) {
+                    print(widget.catalog[index]);
+                    widget._saved.remove(widget.catalog[index]);
+                  } else {
+                    print(widget.catalog[index].id);
+
+                    widget._saved.add(widget.catalog[index]);
+                  }
+                });
+              },
+            ),
+          ],
         );
       },
     );
-  }
-  _addToBasket(){
-    
   }
 }
 
