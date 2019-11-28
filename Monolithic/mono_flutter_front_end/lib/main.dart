@@ -1,136 +1,150 @@
-import 'package:flutter/foundation.dart';
+import 'Catalog.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'Catalog.dart';
 import 'API.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final appTitle = 'Isolate Demo';
-
     return MaterialApp(
-      title: appTitle,
-      home: MyHomePage(title: appTitle),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  final String title;
-
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: FutureBuilder<List<Catalog>>(
+      title: 'Product Catalog',
+      theme: ThemeData.dark(),
+      home: FutureBuilder<List<Catalog>>(
         future: API.fetchCatalog(http.Client()),
         builder: (context, snapshot) {
           if (snapshot.hasError) print(snapshot.error);
-
           return snapshot.hasData
-              ? ProductList(catalog: snapshot.data)
+              ? RandomWords(suggestions: snapshot.data)
               : Center(child: CircularProgressIndicator());
         },
       ),
     );
   }
+  // #enddocregion build
+}
+// #enddocregion MyApp
+
+class RandomWords extends StatefulWidget {
+  final List<Catalog> suggestions;
+  RandomWords({Key key, @required this.suggestions}) : super(key: key);
+  @override
+  RandomWordsState createState() => RandomWordsState();
 }
 
-class ProductList extends StatefulWidget {
-  final List<Catalog> catalog;
+class RandomWordsState extends State<RandomWords> {
   final Set<Catalog> _saved = Set<Catalog>();
+  final _biggerFont = const TextStyle(fontSize: 18.0);
 
-  ProductList({Key key, this.catalog}) : super(key: key);
+  Widget _buildSuggestions() {
+    return ListView.builder(
+        itemCount: widget.suggestions.length,
+        itemBuilder: /*1*/ (context, i) {
+          return _buildRow(widget.suggestions[i]);
+        });
+  }
 
-  @override
-  _ProductListState createState() => _ProductListState();
-}
-
-class _ProductListState extends State<ProductList> {
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+  Widget _ratingsIndicator() {
+    return Center(
+      child: RatingBarIndicator(
+        rating: 2.75,
+        itemBuilder: (context, index) => Icon(
+          Icons.star,
+          color: Colors.amber,
+        ),
+        itemCount: 5,
+        itemSize: 25.0,
+        direction: Axis.horizontal,
       ),
-      itemCount: widget.catalog.length,
-      itemBuilder: (context, index) {
-        final bool alreadySaved = widget._saved.contains(widget.catalog[index]);
-        return Column(
-          children: <Widget>[
-            RaisedButton(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Center(child: Text(widget.catalog[index].color)),
-                    Icon(
-                      alreadySaved ? Icons.favorite : Icons.favorite_border,
-                      color: alreadySaved ? Colors.red : null,
-                    ),
-                  ]),
-              onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) => ProductDetail(
-                //       catalog: widget.catalog[index],
-                //     ),
-                //   ),
-                // );
-                setState(() {
-                  if (alreadySaved) {
-                    print(widget.catalog[index]);
-                    widget._saved.remove(widget.catalog[index]);
-                  } else {
-                    print(widget.catalog[index].id);
-
-                    widget._saved.add(widget.catalog[index]);
-                  }
-                });
-              },
-            ),
-          ],
-        );
-      },
     );
   }
-}
 
-class ProductDetail extends StatelessWidget {
-  final Catalog catalog;
-
-  ProductDetail({Key key, @required this.catalog}) : super(key: key);
+  Widget _buildRow(Catalog pair) {
+    final bool alreadySaved = _saved.contains(pair);
+    return Card(
+      margin: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0),
+      child: Column(
+        children: <Widget>[
+          ListTile(
+              title: Text(
+                pair.title,
+                style: _biggerFont,
+              ),
+              trailing: Icon(
+                alreadySaved ? Icons.favorite : Icons.favorite_border,
+                color: alreadySaved ? Colors.red : null,
+              ),
+              onTap: () {
+                setState(() {
+                  if (alreadySaved) {
+                    _saved.remove(pair);
+                  } else {
+                    _saved.add(pair);
+                  }
+                });
+              }),
+          ListTile(
+            leading: Text(pair.price),
+            trailing: Icon(
+              alreadySaved ? Icons.shopping_basket : Icons.shopping_basket,
+              color: alreadySaved ? Colors.green : null,
+            ),
+            subtitle: _ratingsIndicator(),
+            onTap: () {
+              setState(() {
+                if (alreadySaved) {
+                  _saved.remove(pair);
+                } else {
+                  _saved.add(pair);
+                }
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(catalog.title),
-      ),
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(16),
-            ),
-            Text(
-              catalog.department,
-              style: TextStyle(fontSize: 22),
-            ),
+        appBar: AppBar(
+          title: Text('Startup Name Generator'),
+          actions: <Widget>[
+            IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
           ],
         ),
+        body: _buildSuggestions());
+  }
+
+  void _pushSaved() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          final Iterable<ListTile> tiles = _saved.map(
+            (Catalog pair) {
+              return ListTile(
+                title: Text(
+                  pair.title,
+                  style: _biggerFont,
+                ),
+              );
+            },
+          );
+          final List<Widget> divided = ListTile.divideTiles(
+            context: context,
+            tiles: tiles,
+          ).toList();
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Saved Suggestions'),
+            ),
+            body: ListView(children: divided),
+          );
+        },
       ),
     );
   }
