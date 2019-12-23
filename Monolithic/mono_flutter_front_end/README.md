@@ -1,4 +1,4 @@
-# mono_flutter_front_end
+# example
 
 A new Flutter project.
 

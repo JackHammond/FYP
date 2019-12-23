@@ -1,85 +1,118 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 
-import 'API.dart';
-import 'Catalog.dart';
-import 'User.dart';
-import 'Reviews.dart';
+import 'package:http/http.dart' as http;
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(
+    MaterialApp(home: HomePage()),
+  );
+}
 
-class MyApp extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  HomePage({Key key}) : super(key: key);
+
   @override
-  build(context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'My Http App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Map data;
+  List productData;
+  var rating = 0.0;
+  Widget _ratingsIndicator() {
+    return Center(
+      child: RatingBarIndicator(
+        rating: 2.75,
+        itemBuilder: (context, index) => Icon(
+          Icons.star,
+          color: Colors.amber,
+        ),
+        itemCount: 5,
+        itemSize: 25.0,
+        direction: Axis.horizontal,
       ),
-      home: MyListScreen(),
     );
   }
-}
 
-class MyListScreen extends StatefulWidget {
+  Widget _RatingsBar(index) {
+    return SmoothStarRating(
+        allowHalfRating: false,
+        onRatingChanged: (v) {
+          rating = v;
+          setState(() {});
+          updateRating(productData[index]["_id"].toString(),
+                          rating.toString());
+        },
+        starCount: 5,
+        rating: rating,
+        size: 30.0,
+        color: Colors.green,
+        borderColor: Colors.green,
+        spacing: 0.0);
+  }
+
+  getProducts() async {
+    http.Response response = await http.get('http://10.0.2.2:4000/api/catalog');
+    data = json.decode(response.body);
+    setState(() {
+      productData = data['products'];
+    });
+  }
+
   @override
-  createState() => _MyListScreenState();
-}
-
-class _MyListScreenState extends State {
-  var users = new List<User>();
-  var catalog = new List<Catalog>();
-  _getCatalog() {
-    API.getCatalog().then((response) {
-      setState(() {
-        Iterable list = json.decode(response.body);
-        catalog = list.map((model) => Catalog.fromJson(model)).toList();
-      });
-    });
-  }
-
-  _getUsers() {
-    API.getUsers().then((response) {
-      setState(() {
-        Iterable list = json.decode(response.body);
-        users = list.map((model) => User.fromJson(model)).toList();
-      });
-    });
-  }
-
-  initState() {
+  void initState() {
     super.initState();
-    _getUsers();
-    _getCatalog();
+    getProducts();
   }
 
-  dispose() {
-    super.dispose();
+  updateRating(String uid, String rating) async {
+    http.Response response = await http.put(
+        'http://10.0.2.2:4000/api/catalog/rating',
+        body: {"_id": uid, "productRating": rating});
+    print(uid + " UID");
+    print(rating + " Rating");
+    print(response);
+    getProducts();
   }
 
   @override
-  build(context) {
+  Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Catalog Items"),
-        ),
-        body: ListView.builder(
-          itemCount: users.length,
-          itemBuilder: (context, index) {
-            return Container(
-              child: ListTile(
-                title: Text(users[index].name),
-                leading: CircleAvatar(
-                    backgroundImage: NetworkImage(catalog[index].url)),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Reviews()),
+      appBar: AppBar(
+        title: Text("Product Catalog"),
+      ),
+      body: ListView.builder(
+        itemCount: productData == null ? 0 : productData.length,
+        itemBuilder: (context, int index) {
+          return Card(
+            child: Column(children: <Widget>[
+              ListTile(
+                title: Text(
+                  "${productData[index]["productName"]}",
+                  style: TextStyle(fontSize: 20.0),
                 ),
+                trailing: Text(
+                    "Rating: ${productData[index]["productRating"]}" + "/5.0"),
               ),
-            );
-          },
-        ));
+              ListTile(
+                leading: _RatingsBar(index),
+                trailing: IconButton(
+                    onPressed: () {
+                      //add to basket list
+                    },
+                    icon: Icon(
+                      Icons.shopping_basket,
+                      color: Colors.green,
+                    )),
+              )
+            ]),
+          );
+        },
+      ),
+    );
   }
 }
