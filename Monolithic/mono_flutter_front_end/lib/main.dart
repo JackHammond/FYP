@@ -38,14 +38,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _RatingsBar(index) {
+  Widget _ratingsBar(index) {
     return SmoothStarRating(
         allowHalfRating: false,
         onRatingChanged: (v) {
           rating = v;
           setState(() {});
-          updateRating(productData[index]["_id"].toString(),
-                          rating.toString());
+          updateRating(productData[index]["_id"].toString(), rating.toString());
         },
         starCount: 5,
         rating: rating,
@@ -99,15 +98,92 @@ class _HomePageState extends State<HomePage> {
                     "Rating: ${productData[index]["productRating"]}" + "/5.0"),
               ),
               ListTile(
-                leading: _RatingsBar(index),
-                trailing: IconButton(
-                    onPressed: () {
-                      //add to basket list
-                    },
-                    icon: Icon(
-                      Icons.shopping_basket,
-                      color: Colors.green,
-                    )),
+                leading: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: 20,
+                        height: 50.0,
+                        child: GestureDetector(
+                          onTap: () => updateRating(
+                              productData[index]["_id"].toString(), "1"),
+                          child: Container(
+                              color: Colors.green,
+                              child: Center(child: Text("1"))),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 50.0,
+                          child: GestureDetector(
+                            onTap: () => updateRating(
+                                productData[index]["_id"].toString(), "2"),
+                            child: Container(
+                                color: Colors.green,
+                                child: Center(child: Text("2"))),
+                          ),
+                        )),
+                    Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 50.0,
+                          child: GestureDetector(
+                            onTap: () => updateRating(
+                                productData[index]["_id"].toString(), "3"),
+                            child: Container(
+                                color: Colors.green,
+                                child: Center(child: Text("3"))),
+                          ),
+                        )),
+                    Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 50.0,
+                          child: GestureDetector(
+                            onTap: () => updateRating(
+                                productData[index]["_id"].toString(), "4"),
+                            child: Container(
+                                color: Colors.green,
+                                child: Center(child: Text("4"))),
+                          ),
+                        )),
+                    Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 50.0,
+                          child: GestureDetector(
+                            onTap: () => updateRating(
+                                productData[index]["_id"].toString(), "5"),
+                            child: Container(
+                                color: Colors.green,
+                                child: Center(child: Text("5"))),
+                          ),
+                        )),
+                  ],
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text("£${productData[index]["productPrice"]}"),
+                    IconButton(
+                        onPressed: () {
+                          //add to basket list
+                        },
+                        icon: Icon(
+                          Icons.shopping_basket,
+                          color: Colors.green,
+                        ))
+                  ],
+                ),
               )
             ]),
           );
