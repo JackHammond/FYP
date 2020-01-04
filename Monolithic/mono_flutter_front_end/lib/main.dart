@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:uuid/uuid.dart';
 
 void main() {
   runApp(
@@ -20,6 +21,11 @@ class _HomePageState extends State<HomePage> {
   Map data;
   List productData;
   List productReview;
+  List productBasket;
+  List<String> items = List<String>();
+  static var uuid = Uuid();
+  final String userID = uuid.v1();
+
   getProducts() async {
     http.Response response = await http.get('http://10.0.2.2:4000/api/catalog');
     data = json.decode(response.body);
@@ -36,11 +42,20 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  getBasket() async {
+    http.Response response = await http.get('http://10.0.2.2:4000/api/basket');
+    data = json.decode(response.body);
+    setState(() {
+      productBasket = data['baskets'];
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     getProducts();
     getReviews();
+    getBasket();
   }
 
   updateRating(String uid, String rating) async {
@@ -48,10 +63,62 @@ class _HomePageState extends State<HomePage> {
         'http://10.0.2.2:4000/api/review/create',
         body: {"_id": uid, "productRating": rating});
     print(uid + " Review ID added");
-    print(rating + "Rating added");
+    print(rating + " Rating added");
     print(response);
     getProducts(); //this will refresh the product catalog list
     getReviews(); //this will refresh the review list
+  }
+
+  findBasketID(String selectedItem) {
+    String productID;
+    bool basketExists = false;
+    if (productBasket.length == null) {
+      return null;
+    } else
+      for (int i = 0; i < productBasket.length; i++) {
+        if (productBasket[i]["user_ID"] == userID) {
+          productID = productBasket[i]["user_ID"];
+          basketExists = true;
+          break;
+        } else {
+          basketExists = false;
+        }
+      }
+    if (basketExists) {
+      updateBasket(productID, selectedItem);
+    } else {
+      createBasket(userID, selectedItem);
+    }
+  }
+
+  createBasket(String userID, String selectedItem) async {
+    items.add(selectedItem);
+    print(items.toString());
+    http.Response response = await http.post(
+        'http://10.0.2.2:4000/api/basket/create',
+        body: {"user_ID": userID, "basket": json.encode(items)});
+    if (response.statusCode == 404) {
+      print("404");
+    }
+    getBasket();
+  }
+
+  updateBasket(String basketID, String selectedItem) async {
+    items.add(selectedItem);
+    print(items.toString());
+    http.Response response = await http.put(
+        'http://10.0.2.2:4000/api/basket/update',
+        body: {"_id": basketID, "basket": json.encode(items)});
+    if (response.statusCode == 404) {
+      print("404");
+    }
+    getBasket();
+  }
+
+//this will generate a uuid for the user when app loads
+  setUserID() {
+    var uuid = Uuid();
+    return uuid.v1();
   }
 
   findAverageRating(String listitem) {
@@ -168,9 +235,8 @@ class _HomePageState extends State<HomePage> {
                   children: <Widget>[
                     Text("£${productData[index]["productPrice"]}"),
                     IconButton(
-                        onPressed: () {
-                          //add to basket list
-                        },
+                        onPressed: () =>
+                            findBasketID(productData[index]["_id"].toString()),
                         icon: Icon(
                           Icons.shopping_basket,
                           color: Colors.green,
