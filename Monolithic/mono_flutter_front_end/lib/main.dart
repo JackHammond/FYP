@@ -1,9 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:smooth_star_rating/smooth_star_rating.dart';
-
 import 'package:http/http.dart' as http;
 
 void main() {
@@ -22,38 +19,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Map data;
   List productData;
-  var rating = 0.0;
-  Widget _ratingsIndicator() {
-    return Center(
-      child: RatingBarIndicator(
-        rating: 2.75,
-        itemBuilder: (context, index) => Icon(
-          Icons.star,
-          color: Colors.amber,
-        ),
-        itemCount: 5,
-        itemSize: 25.0,
-        direction: Axis.horizontal,
-      ),
-    );
-  }
-
-  Widget _ratingsBar(index) {
-    return SmoothStarRating(
-        allowHalfRating: false,
-        onRatingChanged: (v) {
-          rating = v;
-          setState(() {});
-          updateRating(productData[index]["_id"].toString(), rating.toString());
-        },
-        starCount: 5,
-        rating: rating,
-        size: 30.0,
-        color: Colors.green,
-        borderColor: Colors.green,
-        spacing: 0.0);
-  }
-
+  List productReview;
   getProducts() async {
     http.Response response = await http.get('http://10.0.2.2:4000/api/catalog');
     data = json.decode(response.body);
@@ -62,20 +28,47 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  getReviews() async {
+    http.Response response = await http.get('http://10.0.2.2:4000/api/review');
+    data = json.decode(response.body);
+    setState(() {
+      productReview = data['reviews'];
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     getProducts();
+    getReviews();
   }
 
   updateRating(String uid, String rating) async {
-    http.Response response = await http.put(
-        'http://10.0.2.2:4000/api/catalog/rating',
+    http.Response response = await http.post(
+        'http://10.0.2.2:4000/api/review/create',
         body: {"_id": uid, "productRating": rating});
-    print(uid + " UID");
-    print(rating + " Rating");
+    print(uid + " Review ID added");
+    print(rating + "Rating added");
     print(response);
-    getProducts();
+    getProducts(); //this will refresh the product catalog list
+    getReviews(); //this will refresh the review list
+  }
+
+  findAverageRating(String listitem) {
+    int ratingCount = 0;
+    int matchesCount = 0;
+    for (int i = 0; i < productReview.length; i++) {
+      if (productReview[i]["product_ID"] == listitem) {
+        matchesCount++;
+        ratingCount += int.parse(productReview[i]["productRating"]);
+      }
+    }
+    double average = ratingCount / matchesCount;
+    if (average.isNaN) {
+      average = 0.0;
+    }
+    String n = average.toStringAsFixed(1);
+    return "$n/5.0";
   }
 
   @override
@@ -94,8 +87,8 @@ class _HomePageState extends State<HomePage> {
                   "${productData[index]["productName"]}",
                   style: TextStyle(fontSize: 20.0),
                 ),
-                trailing: Text(
-                    "Rating: ${productData[index]["productRating"]}" + "/5.0"),
+                trailing: Text(findAverageRating(productData[index]["_id"])),
+                //"Rating: ${productData[index]["productRating"]}" + "/5.0"),
               ),
               ListTile(
                 leading: Row(
