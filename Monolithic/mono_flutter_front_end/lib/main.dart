@@ -58,64 +58,60 @@ class _HomePageState extends State<HomePage> {
     getBasket();
   }
 
-  updateRating(String uid, String rating) async {
+  createRating(String productID, String rating) async {
     http.Response response = await http.post(
         'http://10.0.2.2:4000/api/review/create',
-        body: {"_id": uid, "productRating": rating});
-    print(uid + " Review ID added");
+        body: {"_id": productID, "productRating": rating});
+    print(productID + " Review ID added");
     print(rating + " Rating added");
-    print(response);
+    print(response.body);
     getProducts(); //this will refresh the product catalog list
     getReviews(); //this will refresh the review list
   }
 
-  findBasketID(String selectedItem) {
-    String productID;
+  addToBasket(String productID) {
+    String basketID;
     bool basketExists = false;
     if (productBasket.length == null) {
-      return null;
-    } else
-      for (int i = 0; i < productBasket.length; i++) {
-        if (productBasket[i]["user_ID"] == userID) {
-          productID = productBasket[i]["user_ID"];
-          basketExists = true;
-          break;
-        } else {
-          basketExists = false;
-        }
+      createBasket(userID, productID);
+    }
+    //items.clear();
+    for (int i = 0; i < productBasket.length; i++) {
+      if (productBasket[i]["user_ID"] == userID) {
+        basketID = productBasket[i]["_id"];
+        print("Basket Data");
+        basketExists = true;
+        break;
+      } else {
+        basketExists = false;
       }
+    }
     if (basketExists) {
-      updateBasket(productID, selectedItem);
+      updateBasket(basketID, productID);
     } else {
-      createBasket(userID, selectedItem);
+      createBasket(userID, productID);
     }
   }
 
-  createBasket(String userID, String selectedItem) async {
-    items.add(selectedItem);
-    print(items.toString());
+  createBasket(String userID, String productID) async {
+    items.add(productID);
+    //print(items.toString());
     http.Response response = await http.post(
         'http://10.0.2.2:4000/api/basket/create',
-        body: {"user_ID": userID, "basket": json.encode(items)});
-    if (response.statusCode == 404) {
-      print("404");
-    }
+        body: {"user_ID": userID, "savedProduct_IDs": json.encode(items)});
     getBasket();
   }
 
-  updateBasket(String basketID, String selectedItem) async {
-    items.add(selectedItem);
+  updateBasket(String basketID, String productID) async {
+    items.add(productID);
     print(items.toString());
     http.Response response = await http.put(
         'http://10.0.2.2:4000/api/basket/update',
-        body: {"_id": basketID, "basket": json.encode(items)});
-    if (response.statusCode == 404) {
-      print("404");
-    }
+        body: {"_id": basketID, "savedProduct_IDs": json.encode(items)});
+
     getBasket();
   }
 
-//this will generate a uuid for the user when app loads
   setUserID() {
     var uuid = Uuid();
     return uuid.v1();
@@ -143,6 +139,27 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Product Catalog"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.shopping_basket,
+              color: Colors.white,
+            ),
+            onPressed: () async {
+              final updatedList = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => BasketPage(
+                          basket: productBasket,
+                          catalog: productData,
+                          list: items,
+                        )),
+              );
+              String listitems = updatedList != null ? updatedList : "";
+              print(listitems + " the removed element");
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: productData == null ? 0 : productData.length,
@@ -155,7 +172,6 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(fontSize: 20.0),
                 ),
                 trailing: Text(findAverageRating(productData[index]["_id"])),
-                //"Rating: ${productData[index]["productRating"]}" + "/5.0"),
               ),
               ListTile(
                 leading: Row(
@@ -168,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                         width: 20,
                         height: 50.0,
                         child: GestureDetector(
-                          onTap: () => updateRating(
+                          onTap: () => createRating(
                               productData[index]["_id"].toString(), "1"),
                           child: Container(
                               color: Colors.green,
@@ -182,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                           width: 20,
                           height: 50.0,
                           child: GestureDetector(
-                            onTap: () => updateRating(
+                            onTap: () => createRating(
                                 productData[index]["_id"].toString(), "2"),
                             child: Container(
                                 color: Colors.green,
@@ -195,7 +211,7 @@ class _HomePageState extends State<HomePage> {
                           width: 20,
                           height: 50.0,
                           child: GestureDetector(
-                            onTap: () => updateRating(
+                            onTap: () => createRating(
                                 productData[index]["_id"].toString(), "3"),
                             child: Container(
                                 color: Colors.green,
@@ -208,7 +224,7 @@ class _HomePageState extends State<HomePage> {
                           width: 20,
                           height: 50.0,
                           child: GestureDetector(
-                            onTap: () => updateRating(
+                            onTap: () => createRating(
                                 productData[index]["_id"].toString(), "4"),
                             child: Container(
                                 color: Colors.green,
@@ -221,7 +237,7 @@ class _HomePageState extends State<HomePage> {
                           width: 20,
                           height: 50.0,
                           child: GestureDetector(
-                            onTap: () => updateRating(
+                            onTap: () => createRating(
                                 productData[index]["_id"].toString(), "5"),
                             child: Container(
                                 color: Colors.green,
@@ -236,7 +252,7 @@ class _HomePageState extends State<HomePage> {
                     Text("£${productData[index]["productPrice"]}"),
                     IconButton(
                         onPressed: () =>
-                            findBasketID(productData[index]["_id"].toString()),
+                            addToBasket(productData[index]["_id"].toString()),
                         icon: Icon(
                           Icons.shopping_basket,
                           color: Colors.green,
@@ -247,6 +263,127 @@ class _HomePageState extends State<HomePage> {
             ]),
           );
         },
+      ),
+    );
+  }
+}
+
+class BasketPage extends StatelessWidget {
+  final List basket;
+  final List catalog;
+  final List list;
+  BasketPage(
+      {Key key,
+      @required this.basket,
+      @required this.catalog,
+      @required this.list})
+      : super(key: key);
+
+  _decodeBasket() {
+    String recievedJson = basket[0]["savedProduct_IDs"].toString();
+    var tagsJson = jsonDecode(recievedJson);
+
+    List<String> tags = tagsJson != null ? List.from(tagsJson) : null;
+    //print("Basket from Mongoose");
+    //print(tags);
+    return tags;
+  }
+
+  _getBasketItem(int index) {
+    List tags = _decodeBasket();
+    for (int i = 0; i < catalog.length; i++) {
+      if (tags.contains(catalog[i]["_id"])) {
+        if (tags[index] == catalog[i]["_id"]) {
+          return catalog[i]["productName"].toString();
+        }
+      }
+    }
+  }
+
+  _getBasketPrice(int index) {
+    List tags = _decodeBasket();
+    for (int i = 0; i < catalog.length; i++) {
+      if (tags.contains(catalog[i]["_id"])) {
+        if (tags[index] == catalog[i]["_id"]) {
+          String price = catalog[i]["productPrice"].toString();
+          return double.parse(price);
+        }
+      }
+    }
+  }
+
+  _removeBasketItem(int index) {
+    return list.removeAt(index);
+  }
+
+  _removeWholeBasket() {
+    return list.clear();
+  }
+
+  _addPrices() {
+    double counter = 0;
+    for (int i = 0; i < list.length; i++) {
+      double temp = _getBasketPrice(i);
+      counter += temp;
+    }
+    return counter;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _addPrices();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Second Route"),
+      ),
+      body: ListView.builder(
+        itemCount: list.length,
+        itemBuilder: (context, index) {
+          return Card(
+              child: Column(
+            children: <Widget>[
+              ListTile(
+                title: Row(
+                  children: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.delete_forever),
+                      onPressed: () {
+                        Navigator.pop(context, _removeBasketItem(index));
+                      },
+                      iconSize: 30,
+                    ),
+                    Text(
+                      _getBasketItem(index),
+                      style: TextStyle(fontSize: 15.0),
+                    )
+                  ],
+                ),
+                trailing: Text("£"+_getBasketPrice(index).toString(),
+                    style: TextStyle(fontSize: 16.0)),
+              )
+            ],
+          ));
+        },
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.delete_forever),color: Colors.red, hoverColor: Colors.black,
+              onPressed: () {
+                Navigator.pop(context, _removeWholeBasket());
+              },
+              iconSize: 40,
+            ),
+            Text(
+              "Total: £" + _addPrices().toString(),
+              style: TextStyle(fontSize: 20.0),
+              textAlign: TextAlign.right,
+            ),
+          ],
+        ),
       ),
     );
   }
