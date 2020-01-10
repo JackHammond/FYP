@@ -6,7 +6,6 @@ const  productSchema = new Schema({
     productPrice: String,
     productDepartment: String,
     productRating: String,
-    //TODO: add productRating ProductRating: String
 }, {versionKey:false});
 
 module.exports = model('Product', productSchema);

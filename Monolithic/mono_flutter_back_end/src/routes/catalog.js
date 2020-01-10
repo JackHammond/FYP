@@ -33,7 +33,6 @@ route.get('/api/catalog/create', async (req, res) => {
             productDepartment: faker.commerce.department(),
             productRating: "0",
 
-            //TODO: Add product rating
         })
     }
     res.json({ message: '5 Users Created' });
@@ -44,7 +43,7 @@ route.put('/api/catalog/rating', async (req, res) => {
         { _id: req.body._id },
         { productRating: req.body.productRating },
         { new: true },
-        console.log(req.body.productRating + "req body...."),
+        console.log(req.body.productRating + " req body...."),
         res.json({ message: 'Product Rating updated successfully.' })
     )
 });
