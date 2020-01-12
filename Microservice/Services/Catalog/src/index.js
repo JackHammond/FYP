@@ -9,7 +9,7 @@ async function main(){
     await connect();
     // Express Application
     await app.listen(4000);
-    console.log('Server on port 4000: Connected');
+    console.log('Catalog Server on port 4000: Connected');
 }
 
 main();
