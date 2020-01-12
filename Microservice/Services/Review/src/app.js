@@ -5,9 +5,7 @@ const cors = require('cors');
 
 app.use(morgan('dev'));
 app.use(cors());
-app.use(require('./routes/catalog'));
 app.use(require('./routes/rating'));
-app.use(require('./routes/basket'));
 
 
 module.exports = app;
