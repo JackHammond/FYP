@@ -117,6 +117,12 @@ class _HomePageState extends State<HomePage> {
     return uuid.v1();
   }
 
+  updateProductRating(String listitem, String rating) async {
+    http.Response response = await http.put(
+        "http://10.0.2.2:4000/api/catalog/rating",
+        body: {"_id": listitem, "productRating": rating});
+  }
+
   findAverageRating(String listitem) {
     int ratingCount = 0;
     int matchesCount = 0;
@@ -130,8 +136,9 @@ class _HomePageState extends State<HomePage> {
     if (average.isNaN) {
       average = 0.0;
     }
-    String n = average.toStringAsFixed(1);
-    return "$n/5.0";
+    String avg = average.toStringAsFixed(1);
+    updateProductRating(listitem, avg);
+    //return avg;
   }
 
   @override
@@ -164,6 +171,7 @@ class _HomePageState extends State<HomePage> {
       body: ListView.builder(
         itemCount: productData == null ? 0 : productData.length,
         itemBuilder: (context, int index) {
+          findAverageRating(productData[index]["_id"]);
           return Card(
             child: Column(children: <Widget>[
               ListTile(
@@ -171,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                   "${productData[index]["productName"]}",
                   style: TextStyle(fontSize: 20.0),
                 ),
-                trailing: Text(findAverageRating(productData[index]["_id"])),
+                trailing: Text(productData[index]["productRating"] +"/5"),
               ),
               ListTile(
                 leading: Row(
@@ -358,7 +366,7 @@ class BasketPage extends StatelessWidget {
                     )
                   ],
                 ),
-                trailing: Text("£"+_getBasketPrice(index).toString(),
+                trailing: Text("£" + _getBasketPrice(index).toString(),
                     style: TextStyle(fontSize: 16.0)),
               )
             ],
@@ -371,7 +379,8 @@ class BasketPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             IconButton(
-              icon: Icon(Icons.delete_forever),color: Colors.red, hoverColor: Colors.black,
+              icon: Icon(Icons.delete_forever),
+              color: Colors.red,
               onPressed: () {
                 Navigator.pop(context, _removeWholeBasket());
               },
