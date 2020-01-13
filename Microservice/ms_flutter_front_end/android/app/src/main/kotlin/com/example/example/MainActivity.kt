@@ -1,4 +1,4 @@
-package com.example.ms_flutter_front_end
+package com.example.example
 
 import android.os.Bundle
 import io.flutter.app.FlutterActivity

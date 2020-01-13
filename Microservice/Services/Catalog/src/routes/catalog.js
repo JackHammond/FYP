@@ -40,9 +40,11 @@ route.put('/api/catalog/rating', async (req, res) => {
         { _id: req.body._id },
         { productRating: req.body.productRating },
         { new: true },
-        res.json({ message: req.body._id +' Rating updated successfully.' })
+        console.log(req.body.productRating + " req body...."),
+        res.json({ message: 'Product Rating updated successfully.' })
     )
 });
+
 
 module.exports = route;
 
