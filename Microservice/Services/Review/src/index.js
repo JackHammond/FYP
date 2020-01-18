@@ -1,5 +1,7 @@
 const app = require('./app');
 const { connect } = require('./database');
+require('./eureka-helper/eureka-helper').registerWithEureka('review-service', 4001);
+
 
 
 

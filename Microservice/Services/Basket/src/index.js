@@ -1,5 +1,6 @@
 const app = require('./app');
 const { connect } = require('../database');
+require('./eureka-helper/eureka-helper').registerWithEureka('basket-service', 4002);
 
 
 

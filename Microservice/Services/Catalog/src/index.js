@@ -1,6 +1,7 @@
 const app = require('./app');
 const { connect } = require('../database');
 
+require('./eureka-helper/eureka-helper').registerWithEureka('catalog-service', 4000);
 
 
 async function main(){

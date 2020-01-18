@@ -65,9 +65,10 @@ class _HomePageState extends State<HomePage> {
     print(productID + " Review ID added");
     print(rating + " Rating added");
     print(response.body);
-    getProducts(); //this will refresh the product catalog list
     getReviews(); //this will refresh the review list
     findAverageRating(productID);
+    getProducts(); //this will refresh the product catalog list
+
   }
 
   addToBasket(String productID) {
@@ -96,7 +97,7 @@ class _HomePageState extends State<HomePage> {
 
   createBasket(String userID, String productID) async {
     items.add(productID);
-    //print(items.toString());
+    print(items.toString());
     http.Response response = await http.post(
         'http://10.0.2.2:4002/api/basket/create',
         body: {"user_ID": userID, "savedProduct_IDs": json.encode(items)});
@@ -141,7 +142,10 @@ class _HomePageState extends State<HomePage> {
     print(listitem);
     print(avg);
     updateProductRating(listitem, avg);
+    getProducts(); //this will refresh the product catalog list
+
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,12 +173,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      
       body: ListView.builder(
         itemCount: productData == null ? 0 : productData.length,
         itemBuilder: (context, int index) {
           //findAverageRating(productData[index]["_id"]);
-          getProducts();
           return Card(
             child: Column(children: <Widget>[
               ListTile(
@@ -195,8 +197,11 @@ class _HomePageState extends State<HomePage> {
                         width: 20,
                         height: 50.0,
                         child: GestureDetector(
-                          onTap: () => createRating(
-                              productData[index]["_id"].toString(), "1"),
+                          onTap: () {
+                            createRating(
+                                productData[index]["_id"].toString(), "1");
+                            //getProducts();
+                          },
                           child: Container(
                               color: Colors.green,
                               child: Center(child: Text("1"))),
@@ -209,8 +214,11 @@ class _HomePageState extends State<HomePage> {
                           width: 20,
                           height: 50.0,
                           child: GestureDetector(
-                            onTap: () => createRating(
-                                productData[index]["_id"].toString(), "2"),
+                            onTap: () {
+                              createRating(
+                                  productData[index]["_id"].toString(), "2");
+                              //getProducts();
+                            },
                             child: Container(
                                 color: Colors.green,
                                 child: Center(child: Text("2"))),
@@ -222,8 +230,11 @@ class _HomePageState extends State<HomePage> {
                           width: 20,
                           height: 50.0,
                           child: GestureDetector(
-                            onTap: () => createRating(
-                                productData[index]["_id"].toString(), "3"),
+                            onTap: () {
+                              createRating(
+                                  productData[index]["_id"].toString(), "3");
+                              //getProducts();
+                            },
                             child: Container(
                                 color: Colors.green,
                                 child: Center(child: Text("3"))),
@@ -235,8 +246,11 @@ class _HomePageState extends State<HomePage> {
                           width: 20,
                           height: 50.0,
                           child: GestureDetector(
-                            onTap: () => createRating(
-                                productData[index]["_id"].toString(), "4"),
+                            onTap: () {
+                              createRating(
+                                  productData[index]["_id"].toString(), "4");
+                              //getProducts();
+                            },
                             child: Container(
                                 color: Colors.green,
                                 child: Center(child: Text("4"))),
@@ -248,8 +262,11 @@ class _HomePageState extends State<HomePage> {
                           width: 20,
                           height: 50.0,
                           child: GestureDetector(
-                            onTap: () => createRating(
-                                productData[index]["_id"].toString(), "5"),
+                            onTap: () {
+                              createRating(
+                                  productData[index]["_id"].toString(), "5");
+                              //getProducts();
+                            },
                             child: Container(
                                 color: Colors.green,
                                 child: Center(child: Text("5"))),

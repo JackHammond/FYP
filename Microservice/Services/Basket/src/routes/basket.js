@@ -24,15 +24,16 @@ route.get('/api/basket/delete', async (req, res) => {
 
 route.post('/api/basket/create', async (req, res) => {
     await Basket.create({
-        user_ID: req.body.user_ID,//TODO
-        savedProduct_IDs: req.body.savedProduct_IDs ,//TODO
+        user_ID: req.body.user_ID,
+        savedProduct_IDs: req.body.savedProduct_IDs,
     })
     res.json({ message: 'Basket created' })
 });
-//Do a put first when a user adds to basket, if an error is returned then post instead the same data.
+
+//this will allow the app to update the list parameter
 route.put('/api/basket/update', async (req, res) => {
     await Basket.findByIdAndUpdate(
-        { _id: req.body._id}, // check the _id 
+        { _id: req.body._id }, // check the _id 
         { savedProduct_IDs: req.body.savedProduct_IDs },
         { new: true },
         console.log(req.body.savedItems + " req body...."),
