@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
   final String userID = uuid.v1();
 
   getProducts() async {
-    http.Response response = await http.get('http://10.0.2.2:4000/api/catalog');
+    http.Response response = await http.get('http://localhost:8762/catalog/api/catalog');
     data = json.decode(response.body);
     setState(() {
       productData = data['products'];
@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   getReviews() async {
-    http.Response response = await http.get('http://10.0.2.2:4001/api/review');
+    http.Response response = await http.get('http://localhost:8762/review/api/review');
     data = json.decode(response.body);
     setState(() {
       productReview = data['reviews'];
@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   getBasket() async {
-    http.Response response = await http.get('http://10.0.2.2:4002/api/basket');
+    http.Response response = await http.get('http://localhost:8762/basket/api/basket');
     data = json.decode(response.body);
     setState(() {
       productBasket = data['baskets'];
@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
 
   createRating(String productID, String rating) async {
     http.Response response = await http.post(
-        'http://10.0.2.2:4001/api/review/create',
+        'http://localhost:8762/review/api/review/create',
         body: {"_id": productID, "productRating": rating});
     print(productID + " Review ID added");
     print(rating + " Rating added");
@@ -70,6 +70,8 @@ class _HomePageState extends State<HomePage> {
     getProducts(); //this will refresh the product catalog list
 
   }
+
+//create basket [1]
 
   addToBasket(String productID) {
     String basketID;
@@ -99,7 +101,7 @@ class _HomePageState extends State<HomePage> {
     items.add(productID);
     print(items.toString());
     http.Response response = await http.post(
-        'http://10.0.2.2:4002/api/basket/create',
+        'http://localhost:8762/basket/api/basket/create',
         body: {"user_ID": userID, "savedProduct_IDs": json.encode(items)});
     getBasket();
   }
@@ -108,7 +110,7 @@ class _HomePageState extends State<HomePage> {
     items.add(productID);
     print(items.toString());
     http.Response response = await http.put(
-        'http://10.0.2.2:4002/api/basket/update',
+        'http://localhost:8762/basket/api/basket/update',
         body: {"_id": basketID, "savedProduct_IDs": json.encode(items)});
 
     getBasket();
@@ -121,7 +123,7 @@ class _HomePageState extends State<HomePage> {
 
   updateProductRating(String listitem, String rating) async {
     http.Response response = await http.put(
-        "http://10.0.2.2:4000/api/catalog/rating",
+        "http://localhost:8762/catalog/api/catalog/rating",
         body: {"_id": listitem, "productRating": rating});
   }
 

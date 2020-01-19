@@ -1,0 +1,10 @@
+version: '2.1'
+
+services:
+  ms_flutter_front_end:
+    image: ms_flutter_front_end
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
