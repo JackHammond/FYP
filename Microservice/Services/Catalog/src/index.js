@@ -1,16 +1,18 @@
 const app = require('./app');
 const { connect } = require('../database');
+const PORT = process.env.PORT || 4000;
+const eurekaConnect = require('./eureka-helper/eureka-helper');
 
-require('./eureka-helper/eureka-helper').registerWithEureka('catalog-service', 4000);
+async function main() {
 
-
-async function main(){
-
-    //database connection
+    // MongoDB connection
     await connect();
     // Express Application
-    await app.listen(4000);
-    console.log('Catalog Server on port 4000: Connected');
+    await app.listen(PORT, () => {
+        console.log('Catalog Server on port 4000: Connected');
+    });
+
+    eurekaConnect.registerWithEureka("catalog", PORT);
 }
 
 main();
