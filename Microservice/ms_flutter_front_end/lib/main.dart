@@ -20,33 +20,31 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Map data;
   List productData;
-  List productReview;
-  List productBasket;
-  List<String> items = List<String>();
+  List basketData;
+  List<String> basketItems = List<String>();
   static var uuid = Uuid();
   final String userID = uuid.v1();
 
+  setUserID() {
+    var uuid = Uuid();
+    return uuid.v1();
+  }
+
   getProducts() async {
-    http.Response response = await http.get('http://localhost:8762/catalog/api/catalog');
+    http.Response response =
+        await http.get('http://localhost:8762/catalog/');
     data = json.decode(response.body);
     setState(() {
       productData = data['products'];
     });
   }
 
-  getReviews() async {
-    http.Response response = await http.get('http://localhost:8762/review/api/review');
-    data = json.decode(response.body);
-    setState(() {
-      productReview = data['reviews'];
-    });
-  }
-
   getBasket() async {
-    http.Response response = await http.get('http://localhost:8762/basket/api/basket');
+    http.Response response =
+        await http.get('http://localhost:8762/basket/');
     data = json.decode(response.body);
     setState(() {
-      productBasket = data['baskets'];
+      basketData = data['baskets'];
     });
   }
 
@@ -54,35 +52,18 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     getProducts();
-    getReviews();
     getBasket();
   }
-
-  createRating(String productID, String rating) async {
-    http.Response response = await http.post(
-        'http://localhost:8762/review/api/review/create',
-        body: {"_id": productID, "productRating": rating});
-    print(productID + " Review ID added");
-    print(rating + " Rating added");
-    print(response.body);
-    getReviews(); //this will refresh the review list
-    findAverageRating(productID);
-    getProducts(); //this will refresh the product catalog list
-
-  }
-
-//create basket [1]
 
   addToBasket(String productID) {
     String basketID;
     bool basketExists = false;
-    if (productBasket.length == null) {
+    if (basketData.length == null) {
       createBasket(userID, productID);
     }
-    //items.clear();
-    for (int i = 0; i < productBasket.length; i++) {
-      if (productBasket[i]["user_ID"] == userID) {
-        basketID = productBasket[i]["_id"];
+    for (int i = 0; i < basketData.length; i++) {
+      if (basketData[i]["user_ID"] == userID) {
+        basketID = basketData[i]["_id"];
         print("Basket Data");
         basketExists = true;
         break;
@@ -98,54 +79,40 @@ class _HomePageState extends State<HomePage> {
   }
 
   createBasket(String userID, String productID) async {
-    items.add(productID);
-    print(items.toString());
-    http.Response response = await http.post(
-        'http://localhost:8762/basket/api/basket/create',
-        body: {"user_ID": userID, "savedProduct_IDs": json.encode(items)});
+    basketItems.add(productID);
+    http.Response response = await http
+        .post('http://localhost:8762/basket/create', body: {
+      "user_ID": userID,
+      "savedProduct_IDs": json.encode(basketItems)
+    });
     getBasket();
   }
 
   updateBasket(String basketID, String productID) async {
-    items.add(productID);
-    print(items.toString());
+    basketItems.add(productID);
+    print(basketItems.toString());
     http.Response response = await http.put(
-        'http://localhost:8762/basket/api/basket/update',
-        body: {"_id": basketID, "savedProduct_IDs": json.encode(items)});
+        'http://localhost:8762/basket/update',
+        body: {"_id": basketID, "savedProduct_IDs": json.encode(basketItems)});
 
     getBasket();
   }
 
-  setUserID() {
-    var uuid = Uuid();
-    return uuid.v1();
-  }
-
-  updateProductRating(String listitem, String rating) async {
+  getAverageRating(String listItem) async {
     http.Response response = await http.put(
-        "http://localhost:8762/catalog/api/catalog/rating",
-        body: {"_id": listitem, "productRating": rating});
+        "http://localhost:8762/review/average",
+        body: {"_id": listItem});
+    print(response.body);
   }
 
-  findAverageRating(String listitem) {
-    int ratingCount = 0;
-    int matchesCount = 0;
-    for (int i = 0; i < productReview.length; i++) {
-      if (productReview[i]["product_ID"] == listitem) {
-        matchesCount++;
-        ratingCount += int.parse(productReview[i]["productRating"]);
-      }
-    }
-    double average = ratingCount / matchesCount;
-    if (average.isNaN) {
-      average = 0.0;
-    }
-    String avg = average.toStringAsFixed(1);
-    print(listitem);
-    print(avg);
-    updateProductRating(listitem, avg);
-    getProducts(); //this will refresh the product catalog list
-
+  createRating(String productID, String rating) async {
+    await http.post('http://localhost:8762/review/create',
+        body: {"_id": productID, "productRating": rating});
+    print(productID + " Review created");
+    //re calculate average for the product
+    getAverageRating(productID);
+    //return updated products
+    getProducts();
   }
 
   @override
@@ -164,9 +131,9 @@ class _HomePageState extends State<HomePage> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => BasketPage(
-                          basket: productBasket,
+                          basket: basketData,
                           catalog: productData,
-                          list: items,
+                          list: basketItems,
                         )),
               );
               String listitems = updatedList != null ? updatedList : "";
@@ -202,7 +169,6 @@ class _HomePageState extends State<HomePage> {
                           onTap: () {
                             createRating(
                                 productData[index]["_id"].toString(), "1");
-                            //getProducts();
                           },
                           child: Container(
                               color: Colors.green,
@@ -219,7 +185,6 @@ class _HomePageState extends State<HomePage> {
                             onTap: () {
                               createRating(
                                   productData[index]["_id"].toString(), "2");
-                              //getProducts();
                             },
                             child: Container(
                                 color: Colors.green,
@@ -235,7 +200,6 @@ class _HomePageState extends State<HomePage> {
                             onTap: () {
                               createRating(
                                   productData[index]["_id"].toString(), "3");
-                              //getProducts();
                             },
                             child: Container(
                                 color: Colors.green,
@@ -251,7 +215,6 @@ class _HomePageState extends State<HomePage> {
                             onTap: () {
                               createRating(
                                   productData[index]["_id"].toString(), "4");
-                              //getProducts();
                             },
                             child: Container(
                                 color: Colors.green,
@@ -267,7 +230,6 @@ class _HomePageState extends State<HomePage> {
                             onTap: () {
                               createRating(
                                   productData[index]["_id"].toString(), "5");
-                              //getProducts();
                             },
                             child: Container(
                                 color: Colors.green,
@@ -314,8 +276,6 @@ class BasketPage extends StatelessWidget {
     var tagsJson = jsonDecode(recievedJson);
 
     List<String> tags = tagsJson != null ? List.from(tagsJson) : null;
-    //print("Basket from Mongoose");
-    //print(tags);
     return tags;
   }
 

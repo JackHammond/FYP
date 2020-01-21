@@ -12,28 +12,27 @@ var bodyParser = require('body-parser');
 route.use(bodyParser.json());
 route.use(bodyParser.urlencoded({ extended: true }))
 
-route.get('/api/basket', async (req, res) => {
+route.get('/', async (req, res) => {
     const basket = await Basket.find();
     res.json({ baskets: basket });
 });
 
-route.get('/api/basket/delete', async (req, res) => {
+route.get('/delete', async (req, res) => {
     await Basket.deleteMany(this.all);
-    res.json({ message: 'deleted all rows' });
+    res.json({ message: 'Deleted basket successfully' });
 });
 
-route.post('/api/basket/create', async (req, res) => {
+route.post('/create', async (req, res) => {
     await Basket.create({
         user_ID: req.body.user_ID,
         savedProduct_IDs: req.body.savedProduct_IDs,
     })
-    res.json({ message: 'Basket created' })
+    res.json({ message: 'Basket created successfully' })
 });
 
-//this will allow the app to update the list parameter
-route.put('/api/basket/update', async (req, res) => {
+route.put('/update', async (req, res) => {
     await Basket.findByIdAndUpdate(
-        { _id: req.body._id }, // check the _id 
+        { _id: req.body._id },
         { savedProduct_IDs: req.body.savedProduct_IDs },
         { new: true },
         console.log(req.body.savedItems + " req body...."),

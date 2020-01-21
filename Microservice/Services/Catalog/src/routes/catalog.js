@@ -11,18 +11,19 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.get('/api/catalog', async (req, res) => {
+
+app.get('/', async (req, res) => {
     const product = await Products.find();
     res.json({ products: product });
 });
 
-app.get('/api/catalog/delete', async (req, res) => {
+app.get('/delete', async (req, res) => {
     await Products.deleteMany(this.all);
-    res.json({ message: 'Deleted all items' });
+    res.json({ message: 'Deleted all product items' });
 });
 
-app.get('/api/catalog/create', async (req, res) => {
-    for (let i = 0; i < 5; i++) {
+app.get('/create', async (req, res) => {
+    for (let i = 0; i < 50; i++) {
         await Products.create({
             productName: faker.commerce.productName(),
             productColor: faker.commerce.color(),
@@ -32,19 +33,17 @@ app.get('/api/catalog/create', async (req, res) => {
 
         })
     }
-    res.json({ message: '5 Users Created' });
+    res.json({ message: '50 Products Created' });
 });
 
-app.put('/api/catalog/rating', async (req, res) => {
+app.put('/rating', async (req, res) => {
     await Products.findByIdAndUpdate(
         { _id: req.body._id },
         { productRating: req.body.productRating },
         { new: true },
-        console.log(req.body.productRating + " req body...."),
-        res.json({ message: 'Product Rating updated successfully.' })
     )
+    res.json({ message: 'Product Rating updated successfully.' })
 });
-
 
 module.exports = app;
 
