@@ -44,6 +44,7 @@ app.put('/average', async (req, res) => {
         for (var i = 0; i < data.length; i++) {
             ratingCount += parseInt(data[i].productRating);
         }
+        console.log(ratingCount);
         var average = ratingCount / data.length;
         if (isNaN(average)) {
             average = 0.0;

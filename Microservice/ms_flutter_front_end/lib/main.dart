@@ -105,6 +105,23 @@ class _HomePageState extends State<HomePage> {
     print(response.body);
   }
 
+  
+  // updateBasketAndGetPrice(String userID, String productID) async {
+  //   if (basketData.length == null) {
+  //     createBasket(userID, productID);
+  //   } else {
+  //     basketItems.add(productID);
+  //     http.Response response = await http
+  //         .put('http://localhost:8762/basket/update', body: {
+  //       "userID": userID,
+  //       "savedProduct_IDs": json.encode(basketItems)
+  //     });
+  //     //basketPrice = response.body;
+  //   }
+  //   getBasket();
+  // }
+
+
   createRating(String productID, String rating) async {
     await http.post('http://localhost:8762/review/create',
         body: {"_id": productID, "productRating": rating});
