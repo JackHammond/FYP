@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -22,8 +23,9 @@ class _HomePageState extends State<HomePage> {
   List productData;
   List basketData;
   List<String> basketItems = List<String>();
-  static var uuid = Uuid();
-  final String userID = uuid.v1();
+  //static var uuid = Uuid();
+  //final String userID = uuid.v1();
+  final String userID = "1";
 
   setUserID() {
     var uuid = Uuid();
@@ -31,8 +33,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   getProducts() async {
-    http.Response response =
-        await http.get('http://localhost:8762/catalog/');
+    http.Response response = await http.get('http://localhost:8762/catalog/');
     data = json.decode(response.body);
     setState(() {
       productData = data['products'];
@@ -40,8 +41,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   getBasket() async {
-    http.Response response =
-        await http.get('http://localhost:8762/basket/');
+    http.Response response = await http.get('http://localhost:8762/basket/');
     data = json.decode(response.body);
     setState(() {
       basketData = data['baskets'];
@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
   addToBasket(String productID) {
     String basketID;
     bool basketExists = false;
-    if (basketData.length == null) {
+    if (basketData == null) {
       createBasket(userID, productID);
     }
     for (int i = 0; i < basketData.length; i++) {
@@ -73,6 +73,8 @@ class _HomePageState extends State<HomePage> {
     }
     if (basketExists) {
       updateBasket(basketID, productID);
+      print("BasketID: " + basketID);
+      //totalBasket();
     } else {
       createBasket(userID, productID);
     }
@@ -94,33 +96,14 @@ class _HomePageState extends State<HomePage> {
     http.Response response = await http.put(
         'http://localhost:8762/basket/update',
         body: {"_id": basketID, "savedProduct_IDs": json.encode(basketItems)});
-
     getBasket();
   }
 
   getAverageRating(String listItem) async {
-    http.Response response = await http.put(
-        "http://localhost:8762/review/average",
-        body: {"_id": listItem});
+    http.Response response = await http
+        .put("http://localhost:8762/review/average", body: {"_id": listItem});
     print(response.body);
   }
-
-  
-  // updateBasketAndGetPrice(String userID, String productID) async {
-  //   if (basketData.length == null) {
-  //     createBasket(userID, productID);
-  //   } else {
-  //     basketItems.add(productID);
-  //     http.Response response = await http
-  //         .put('http://localhost:8762/basket/update', body: {
-  //       "userID": userID,
-  //       "savedProduct_IDs": json.encode(basketItems)
-  //     });
-  //     //basketPrice = response.body;
-  //   }
-  //   getBasket();
-  // }
-
 
   createRating(String productID, String rating) async {
     await http.post('http://localhost:8762/review/create',
@@ -144,17 +127,16 @@ class _HomePageState extends State<HomePage> {
               color: Colors.white,
             ),
             onPressed: () async {
-              final updatedList = await Navigator.push(
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => BasketPage(
                           basket: basketData,
                           catalog: productData,
                           list: basketItems,
+                          userid: userID,
                         )),
               );
-              String listitems = updatedList != null ? updatedList : "";
-              print(listitems + " the removed element");
             },
           ),
         ],
@@ -162,7 +144,6 @@ class _HomePageState extends State<HomePage> {
       body: ListView.builder(
         itemCount: productData == null ? 0 : productData.length,
         itemBuilder: (context, int index) {
-          //findAverageRating(productData[index]["_id"]);
           return Card(
             child: Column(children: <Widget>[
               ListTile(
@@ -277,74 +258,105 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class BasketPage extends StatelessWidget {
+class BasketPage extends StatefulWidget {
   final List basket;
   final List catalog;
   final List list;
+
+  final String userid;
   BasketPage(
       {Key key,
       @required this.basket,
       @required this.catalog,
+      @required this.userid,
       @required this.list})
       : super(key: key);
 
-  _decodeBasket() {
-    String recievedJson = basket[0]["savedProduct_IDs"].toString();
-    var tagsJson = jsonDecode(recievedJson);
+  @override
+  _BasketPageState createState() => _BasketPageState();
+}
 
-    List<String> tags = tagsJson != null ? List.from(tagsJson) : null;
-    return tags;
+class _BasketPageState extends State<BasketPage> {
+  double totalValue;
+  List<String> tags = List<String>();
+
+  _decodeBasket() {
+    String recievedJson = widget.basket[0]["savedProduct_IDs"].toString();
+    var tagsJson = jsonDecode(recievedJson);
+    tags = tagsJson != null ? List.from(tagsJson) : null;
+  }
+
+  _totalBasket() async {
+    http.Response response = await http.put(
+        'http://localhost:8762/basket/total',
+        body: {"user_ID": widget.userid});
+    totalValue = double.parse(response.body);
+    print(totalValue);
+    setState(() => totalValue = double.parse(response.body));
   }
 
   _getBasketItem(int index) {
-    List tags = _decodeBasket();
-    for (int i = 0; i < catalog.length; i++) {
-      if (tags.contains(catalog[i]["_id"])) {
-        if (tags[index] == catalog[i]["_id"]) {
-          return catalog[i]["productName"].toString();
+    for (int i = 0; i < widget.catalog.length; i++) {
+      if (tags.contains(widget.catalog[i]["_id"])) {
+        if (tags[index] == widget.catalog[i]["_id"]) {
+          return widget.catalog[i]["productName"].toString();
         }
       }
     }
   }
 
+  removeWholeBasket() async {
+    tags.clear();
+    http.Response response =
+        await http.get('http://localhost:8762/basket/deleteall');
+    print(response.body.toString());
+    _decodeBasket();
+  }
+
+  removeSelectedBasketItem(index) async {
+    print(tags.toString());
+    tags.remove(index);
+    print(tags.toString());
+    http.Response response = await http.put(
+        'http://localhost:8762/basket/update',
+        body: {"_id": "5e2c8c86e5413e350c164d26", "savedProduct_IDs": json.encode(tags)});
+    //_decodeBasket();
+  }
+
   _getBasketPrice(int index) {
-    List tags = _decodeBasket();
-    for (int i = 0; i < catalog.length; i++) {
-      if (tags.contains(catalog[i]["_id"])) {
-        if (tags[index] == catalog[i]["_id"]) {
-          String price = catalog[i]["productPrice"].toString();
+    for (int i = 0; i < widget.catalog.length; i++) {
+      if (tags.contains(widget.catalog[i]["_id"])) {
+        if (tags[index] == widget.catalog[i]["_id"]) {
+          String price = widget.catalog[i]["productPrice"].toString();
           return double.parse(price);
         }
       }
     }
   }
 
-  _removeBasketItem(int index) {
-    return list.removeAt(index);
-  }
-
   _removeWholeBasket() {
-    return list.clear();
+    //do put reqeust here and then set state
+
+    return tags.clear();
   }
 
-  _addPrices() {
-    double counter = 0;
-    for (int i = 0; i < list.length; i++) {
-      double temp = _getBasketPrice(i);
-      counter += temp;
-    }
-    return counter;
+  @override
+  void initState() {
+    super.initState();
+    _totalBasket();
+    _decodeBasket();
   }
 
   @override
   Widget build(BuildContext context) {
-    _addPrices();
+    //_addPrices();
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Second Route"),
       ),
       body: ListView.builder(
-        itemCount: list.length,
+        itemCount: tags.length,
         itemBuilder: (context, index) {
           return Card(
               child: Column(
@@ -355,7 +367,7 @@ class BasketPage extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.delete_forever),
                       onPressed: () {
-                        Navigator.pop(context, _removeBasketItem(index));
+                        Navigator.pop(context, removeSelectedBasketItem(index));
                       },
                       iconSize: 30,
                     ),
@@ -386,7 +398,7 @@ class BasketPage extends StatelessWidget {
               iconSize: 40,
             ),
             Text(
-              "Total: £" + _addPrices().toString(),
+              "Total: £" + totalValue.toString(),
               style: TextStyle(fontSize: 20.0),
               textAlign: TextAlign.right,
             ),

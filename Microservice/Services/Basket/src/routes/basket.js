@@ -19,10 +19,22 @@ app.get('/', async (req, res) => {
     res.json({ baskets: basket });
 });
 
-app.get('/delete', async (req, res) => {
+app.get('/deleteall', async (req, res) => {
     await Basket.deleteMany(this.all);
-    res.json({ message: 'Deleted basket successfully' });
+    res.json({ message: 'Deleted whole basket successfully' });
 });
+
+app.put('/deleteone', async (req, res) => {
+    console.log("reqbodyid: " +req.body._id);
+    await Basket.deleteOne({"savedProduct_IDs": req.body._id}, (err) => {
+        if(err){
+            throw err;
+        }else{
+            res.json({ message: "Deleted" + req.body._id +" successfully" });
+        }
+    });
+});
+
 
 app.post('/create', async (req, res) => {
     await Basket.create({
@@ -45,9 +57,8 @@ function compare(productAtIndexArr, basketArray) {
 }
 
 app.put('/total', async (req, res) => {
+    console.log("Req body user_ID: "+req.body.user_ID);
     await Basket.find({ user_ID: req.body.user_ID }).exec(function (e, basketItems) {
-        var total = 0.0;
-
         if (e) {
             console.log(e)
         } else {
@@ -65,7 +76,7 @@ app.put('/total', async (req, res) => {
                         }
                     }
                     console.log(tempTotal);
-                    res.json({ message: 'Found users Basket', total: tempTotal });
+                    res.json(tempTotal);
                 });
         }
     });
