@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   review:
-    image: review
+    image: review:latest
     build: .
     environment:
       NODE_ENV: production
