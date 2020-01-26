@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   List<String> basketItems = List<String>();
   //static var uuid = Uuid();
   //final String userID = uuid.v1();
-  final String userID = "1";
+  final String userID = "5e2c8c86e5413e350c164d26";
 
   setUserID() {
     var uuid = Uuid();
@@ -38,6 +38,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       productData = data['products'];
     });
+    return productData;
   }
 
   getBasket() async {
@@ -74,7 +75,6 @@ class _HomePageState extends State<HomePage> {
     if (basketExists) {
       updateBasket(basketID, productID);
       print("BasketID: " + basketID);
-      //totalBasket();
     } else {
       createBasket(userID, productID);
     }
@@ -99,9 +99,21 @@ class _HomePageState extends State<HomePage> {
     getBasket();
   }
 
-  getAverageRating(String listItem) async {
+  removeBasketItem(String productID) async {
+    if (productID != null) {
+      print("Removed: " + productID.toString());
+      basketItems.remove(productID);
+    }
+    print("Current Basket: " + basketItems.toString());
+    http.Response response = await http.put(
+        'http://localhost:8762/basket/update',
+        body: {"_id": userID, "savedProduct_IDs": json.encode(basketItems)});
+    getBasket();
+  }
+
+  getAverageRating(String productID) async {
     http.Response response = await http
-        .put("http://localhost:8762/review/average", body: {"_id": listItem});
+        .put("http://localhost:8762/review/average", body: {"_id": productID});
     print(response.body);
   }
 
@@ -127,7 +139,7 @@ class _HomePageState extends State<HomePage> {
               color: Colors.white,
             ),
             onPressed: () async {
-              await Navigator.push(
+              var productID = await Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => BasketPage(
@@ -137,6 +149,7 @@ class _HomePageState extends State<HomePage> {
                           userid: userID,
                         )),
               );
+              removeBasketItem(productID);
             },
           ),
         ],
@@ -305,24 +318,6 @@ class _BasketPageState extends State<BasketPage> {
     }
   }
 
-  removeWholeBasket() async {
-    tags.clear();
-    http.Response response =
-        await http.get('http://localhost:8762/basket/deleteall');
-    print(response.body.toString());
-    _decodeBasket();
-  }
-
-  removeSelectedBasketItem(index) async {
-    print(tags.toString());
-    tags.remove(index);
-    print(tags.toString());
-    http.Response response = await http.put(
-        'http://localhost:8762/basket/update',
-        body: {"_id": "5e2c8c86e5413e350c164d26", "savedProduct_IDs": json.encode(tags)});
-    //_decodeBasket();
-  }
-
   _getBasketPrice(int index) {
     for (int i = 0; i < widget.catalog.length; i++) {
       if (tags.contains(widget.catalog[i]["_id"])) {
@@ -332,12 +327,6 @@ class _BasketPageState extends State<BasketPage> {
         }
       }
     }
-  }
-
-  _removeWholeBasket() {
-    //do put reqeust here and then set state
-
-    return tags.clear();
   }
 
   @override
@@ -353,7 +342,7 @@ class _BasketPageState extends State<BasketPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Second Route"),
+        title: Text("Basket"),
       ),
       body: ListView.builder(
         itemCount: tags.length,
@@ -367,7 +356,8 @@ class _BasketPageState extends State<BasketPage> {
                     IconButton(
                       icon: Icon(Icons.delete_forever),
                       onPressed: () {
-                        Navigator.pop(context, removeSelectedBasketItem(index));
+                        //removeSelectedBasketItem(index);
+                        Navigator.pop(context, tags[index].toString());
                       },
                       iconSize: 30,
                     ),
@@ -389,14 +379,6 @@ class _BasketPageState extends State<BasketPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.delete_forever),
-              color: Colors.red,
-              onPressed: () {
-                Navigator.pop(context, _removeWholeBasket());
-              },
-              iconSize: 40,
-            ),
             Text(
               "Total: £" + totalValue.toString(),
               style: TextStyle(fontSize: 20.0),
