@@ -1,0 +1,8 @@
+version: '2.1'
+
+services:
+  r-d-service:
+    image: r-d-service
+    build: .
+    ports:
+      - 8761:8761

@@ -1,0 +1,8 @@
+version: '2.1'
+
+services:
+  zuul.service:
+    image: zuul.service
+    build: .
+    ports:
+      - 8762:8762

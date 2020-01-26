@@ -1,0 +1,13 @@
+version: '2.1'
+
+services:
+  basket:
+    image: basket
+    build: .
+    environment:
+      NODE_ENV: development
+    ports:
+      - 4002:4002
+      - 9229:9229
+    ## set your startup file here
+    command: node --inspect=0.0.0.0:9229 index.js
