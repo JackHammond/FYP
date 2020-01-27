@@ -3,7 +3,7 @@ FROM openjdk:8-jdk-alpine
 VOLUME /tmp
 ARG JAVA_OPTS
 ENV JAVA_OPTS=$JAVA_OPTS
-ADD target/zuul.service-0.0.1-SNAPSHOT.jar zuul.service.jar
+ADD zuul.service-0.0.1-SNAPSHOT.jar zuul.service.jar
 EXPOSE 8762
 ENTRYPOINT exec java $JAVA_OPTS -jar zuul.service.jar
 # For Spring-Boot project, use the entrypoint below to reduce Tomcat startup time.
