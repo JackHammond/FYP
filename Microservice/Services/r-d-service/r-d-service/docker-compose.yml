@@ -3,6 +3,16 @@ version: '2.1'
 services:
   r-d-service:
     image: r-d-service
+    container_name: eureka-service
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.2
     build: .
     ports:
       - 8761:8761
+networks:
+  static-network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          ip_range: 172.28.5.0/24
