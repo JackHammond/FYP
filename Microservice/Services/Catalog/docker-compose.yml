@@ -1,10 +1,62 @@
-version: '2.1'
-
+version: '2'
 services:
-  catalog:
-    image: catalog
-    build: .
-    environment:
-      NODE_ENV: production
-    ports:
-      - 4000:4000
+    catalog:
+        build: .
+        container_name: catalog
+        image: catalog
+        restart: always
+        command: node src/index.js
+        ports:
+            - "4000:4000"
+        #links:
+        #    - mongo
+        depends_on:
+            - mongodb
+            - r-d-service2
+        #networks:
+        #  static-network:
+        #    ipv4_address: 172.20.128.12
+    mongodb:
+        image: mongo
+        container_name: mongo
+        environment:
+          - MONGO_DATA_DIR=/data/db
+          - MONGO_LOG_DIR=/dev/null
+        volumes:
+           - ./data:/data/db
+        ports:
+            - "27017:27017"
+        #networks:
+        #  static-network:
+        #    ipv4_address: 172.20.128.16
+        command: mongod start
+        #command: mongod --bind_ip 127.0.0.1,172.18.0.12
+        command: mongod --logpath=/dev/null # --quiet
+    r-d-service2:
+        image: r-d-service2
+        container_name: r-d-service2
+        #networks:
+        #  static-network:
+        #    ipv4_address: 172.20.128.2
+        build: ../r-d-service/r-d-service/
+        ports:
+          - 8761:8761
+#networks:
+#  static-network:
+#    ipam:
+#      config:
+#        - subnet: 172.20.0.0/16
+#          ip_range: 172.28.5.0/24
+
+#networks:
+ #  static-network:
+     #driver: bridge
+ #    ipam:
+ #      config:
+ #        - subnet: 172.20.128.0/24
+
+#networks:
+  # mongo_net:
+    # ipam:
+      # config:
+        # - subnet: 172.15.0.0/24
