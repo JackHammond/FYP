@@ -6,8 +6,8 @@ metadata:
     kompose.version: 1.20.0 (f3d54d784)
   creationTimestamp: null
   labels:
-    io.kompose.service: catalog-service
-  name: catalog-service
+    io.kompose.service: basket-service
+  name: basket-service
 spec:
   replicas: 1
   strategy: {}
@@ -18,16 +18,16 @@ spec:
         kompose.version: 1.20.0 (f3d54d784)
       creationTimestamp: null
       labels:
-        io.kompose.service: catalog-service
+        io.kompose.service: basket-service
     spec:
       containers:
       - args:
         - node
         - src/index.js
-        image: catalog-service
-        name: catalog-service
+        image: jackhammond/fyp:basket-service
+        name: basket-service
         ports:
-        - containerPort: 4000
+        - containerPort: 4002
         resources: {}
       restartPolicy: Always
 status: {}

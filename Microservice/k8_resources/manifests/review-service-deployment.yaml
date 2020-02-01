@@ -6,8 +6,8 @@ metadata:
     kompose.version: 1.20.0 (f3d54d784)
   creationTimestamp: null
   labels:
-    io.kompose.service: eureka-service
-  name: eureka-service
+    io.kompose.service: review-service
+  name: review-service
 spec:
   replicas: 1
   strategy: {}
@@ -18,13 +18,16 @@ spec:
         kompose.version: 1.20.0 (f3d54d784)
       creationTimestamp: null
       labels:
-        io.kompose.service: eureka-service
+        io.kompose.service: review-service
     spec:
       containers:
-      - image: eureka-service
-        name: eureka-service
+      - args:
+        - node
+        - src/index.js
+        image: jackhammond/fyp:review-service
+        name: review-service
         ports:
-        - containerPort: 8761
+        - containerPort: 4001
         resources: {}
       restartPolicy: Always
 status: {}

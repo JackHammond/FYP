@@ -21,7 +21,7 @@ spec:
         io.kompose.service: zuul-service
     spec:
       containers:
-      - image: zuul-service
+      - image: jackhammond/fyp:zuul-service
         name: zuul-service
         ports:
         - containerPort: 8762
