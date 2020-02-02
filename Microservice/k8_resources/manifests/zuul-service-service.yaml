@@ -13,6 +13,7 @@ spec:
   - name: "8762"
     port: 8762
     targetPort: 8762
+  type: LoadBalancer
   selector:
     io.kompose.service: zuul-service
 status:

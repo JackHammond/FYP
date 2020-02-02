@@ -25,6 +25,7 @@ spec:
         - node
         - src/index.js
         image: jackhammond/fyp:catalog-service
+        imagePullPolicy: Always
         name: catalog-service
         ports:
         - containerPort: 4000

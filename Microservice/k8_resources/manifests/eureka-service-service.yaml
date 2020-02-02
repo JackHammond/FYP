@@ -13,6 +13,7 @@ spec:
   - name: "8761"
     port: 8761
     targetPort: 8761
+  type: LoadBalancer
   selector:
     io.kompose.service: eureka-service
 status:

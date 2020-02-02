@@ -22,6 +22,7 @@ spec:
     spec:
       containers:
       - image: jackhammond/fyp:eureka-service
+        imagePullPolicy: Always
         name: eureka-service
         ports:
         - containerPort: 8761

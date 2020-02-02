@@ -25,6 +25,7 @@ spec:
         - node
         - src/index.js
         image: jackhammond/fyp:review-service
+        imagePullPolicy: Always
         name: review-service
         ports:
         - containerPort: 4001

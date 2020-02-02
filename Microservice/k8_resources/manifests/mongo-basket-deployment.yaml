@@ -31,6 +31,7 @@ spec:
         - name: MONGO_LOG_DIR
           value: /dev/null
         image: mongo
+        imagePullPolicy: Always
         name: mongo-basket
         ports:
         - containerPort: 27017

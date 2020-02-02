@@ -25,6 +25,7 @@ spec:
         - node
         - src/index.js
         image: jackhammond/fyp:basket-service
+        imagePullPolicy: Always
         name: basket-service
         ports:
         - containerPort: 4002
