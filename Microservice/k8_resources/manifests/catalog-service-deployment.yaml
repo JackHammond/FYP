@@ -30,23 +30,4 @@ spec:
         - containerPort: 4000
         resources: {}
       restartPolicy: Always
-      - args:
-        - mongod
-        - --logpath=/dev/null
-        env:
-        - name: MONGO_DATA_DIR
-          value: /data/db
-        - name: MONGO_LOG_DIR
-          value: /dev/null
-        image: mongo
-        name: mongo-catalog
-        resources: {}
-        volumeMounts:
-        - mountPath: /data
-          name: mongo-catalog-claim0
-      restartPolicy: Always
-      volumes:
-      - name: mongo-catalog-claim0
-        persistentVolumeClaim:
-          claimName: mongo-catalog-claim0
 status: {}

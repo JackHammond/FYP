@@ -3,7 +3,7 @@ services:
     catalog-service:
         build: .
         container_name: catalog-service
-        image: catalog-service
+        image: jackhammond/fyp:catalog-service
         #restart: always
         command: node src/index.js
         ports:
@@ -20,14 +20,14 @@ services:
           - MONGO_LOG_DIR=/dev/null
         volumes:
            - ./data:/data
-#        ports:
-#            - "27017:27017"
+        ports:
+            - "27017:27017"
         command: mongod start
         command: mongod --logpath=/dev/null # --quiet
     review-service:
         build: ../Review/
         container_name: review-service
-        image: review-service
+        image: jackhammond/fyp:review-service
         #restart: always
         command: node src/index.js
         ports:
@@ -44,15 +44,15 @@ services:
           - MONGO_LOG_DIR=/dev/null
         volumes:
            - ./data:/data
-#        ports:
-#            - "27018:27017"
+        ports:
+            - "27018:27017"
         #command: mongod start
         command: mongod start
         command: mongod --logpath=/dev/null # --quiet
     basket-service:
         build: ../Basket/
         container_name: basket-service
-        image: basket-service
+        image: jackhammond/fyp:basket-service
         #restart: always
         command: node src/index.js
         ports:
@@ -69,19 +69,19 @@ services:
           - MONGO_LOG_DIR=/dev/null
         volumes:
            - ./data:/data
-#        ports:
-#            - "27019:27017"
+        ports:
+            - "27019:27017"
         #command: mongod start
         command: mongod start
         command: mongod --logpath=/dev/null # --quiet
     eureka-service:
-        image: eureka-service
+        image: jackhammond/fyp:eureka-service
         container_name: eureka-service
         build: ../r-d-service/r-d-service/
         ports:
           - 8761:8761
     zuul-service:
-        image: zuul-service
+        image: jackhammond/fyp:zuul-service
         container_name: zuul-service
         build: ../zuul.service/zuul.service/
         ports:
