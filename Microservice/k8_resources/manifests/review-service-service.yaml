@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml
+    kompose.version: 1.20.0 (f3d54d784)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: review-service
+  name: review-service
+spec:
+  ports:
+  - name: "4001"
+    port: 4001
+    targetPort: 4001
+  selector:
+    io.kompose.service: review-service
+status:
+  loadBalancer: {}

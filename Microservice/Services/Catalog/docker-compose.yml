@@ -1,62 +1,89 @@
 version: '2'
 services:
-    catalog:
+    catalog-service:
         build: .
-        container_name: catalog
-        image: catalog
-        restart: always
+        container_name: catalog-service
+        image: jackhammond/fyp:catalog-service
+        #restart: always
         command: node src/index.js
         ports:
             - "4000:4000"
-        #links:
-        #    - mongo
         depends_on:
-            - mongodb
-            - r-d-service2
-        #networks:
-        #  static-network:
-        #    ipv4_address: 172.20.128.12
-    mongodb:
+            - mongo-catalog
+            - eureka-service
+            - zuul-service
+    mongo-catalog:
         image: mongo
-        container_name: mongo
+        container_name: mongo_catalog
         environment:
           - MONGO_DATA_DIR=/data/db
           - MONGO_LOG_DIR=/dev/null
         volumes:
-           - ./data:/data/db
+           - ./data:/data
         ports:
             - "27017:27017"
-        #networks:
-        #  static-network:
-        #    ipv4_address: 172.20.128.16
         command: mongod start
-        #command: mongod --bind_ip 127.0.0.1,172.18.0.12
         command: mongod --logpath=/dev/null # --quiet
-    r-d-service2:
-        image: r-d-service2
-        container_name: r-d-service2
-        #networks:
-        #  static-network:
-        #    ipv4_address: 172.20.128.2
+    review-service:
+        build: ../Review/
+        container_name: review-service
+        image: jackhammond/fyp:review-service
+        #restart: always
+        command: node src/index.js
+        ports:
+            - "4001:4001"
+        depends_on:
+            - mongo-review
+            - eureka-service
+            - zuul-service
+    mongo-review:
+        image: mongo
+        container_name: mongo_review
+        environment:
+          - MONGO_DATA_DIR=/data/db
+          - MONGO_LOG_DIR=/dev/null
+        volumes:
+           - ./data:/data
+        ports:
+            - "27018:27017"
+        #command: mongod start
+        command: mongod start
+        command: mongod --logpath=/dev/null # --quiet
+    basket-service:
+        build: ../Basket/
+        container_name: basket-service
+        image: jackhammond/fyp:basket-service
+        #restart: always
+        command: node src/index.js
+        ports:
+            - "4002:4002"
+        depends_on:
+            - mongo-basket
+            - eureka-service
+            - zuul-service
+    mongo-basket:
+        image: mongo
+        container_name: mongo_basket
+        environment:
+          - MONGO_DATA_DIR=/data/db
+          - MONGO_LOG_DIR=/dev/null
+        volumes:
+           - ./data:/data
+        ports:
+            - "27019:27017"
+        #command: mongod start
+        command: mongod start
+        command: mongod --logpath=/dev/null # --quiet
+    eureka-service:
+        image: jackhammond/fyp:eureka-service
+        container_name: eureka-service
         build: ../r-d-service/r-d-service/
         ports:
           - 8761:8761
-#networks:
-#  static-network:
-#    ipam:
-#      config:
-#        - subnet: 172.20.0.0/16
-#          ip_range: 172.28.5.0/24
+    zuul-service:
+        image: jackhammond/fyp:zuul-service
+        container_name: zuul-service
+        build: ../zuul.service/zuul.service/
+        ports:
+          - 8762:8762
 
-#networks:
- #  static-network:
-     #driver: bridge
- #    ipam:
- #      config:
- #        - subnet: 172.20.128.0/24
-
-#networks:
-  # mongo_net:
-    # ipam:
-      # config:
-        # - subnet: 172.15.0.0/24
