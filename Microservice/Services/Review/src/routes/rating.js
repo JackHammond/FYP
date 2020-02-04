@@ -11,7 +11,7 @@ var bodyParser = require('body-parser');
 function updateCatalogRating(listItem, rating) {
     axios({
         method: 'put',
-        url: 'http://localhost:8762/catalog/rating',
+        url: 'http://35.242.134.188:8762/catalog/rating',
         data: {
             _id: listItem,
             productRating: rating

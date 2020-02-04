@@ -64,7 +64,7 @@ app.put('/total', async (req, res) => {
         } else {
             var decodedBasket = JSON.parse(basketItems[0].savedProduct_IDs);
             //console.log(addUpBasket(decodedBasket));
-            axios.get('http://localhost:8762/catalog/')
+            axios.get('http://35.242.134.188:8762/catalog/')
                 .then((response) => {
                     var tempTotal = 0.0;
                     for (var i = 0; i < decodedBasket.length; i++) {
