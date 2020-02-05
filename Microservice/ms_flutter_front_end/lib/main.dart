@@ -6,7 +6,7 @@ import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 void main() {
   runApp(
-    MaterialApp(home: HomePage()),
+    MaterialApp(home: HomePage(), debugShowCheckedModeBanner: false,),
   );
 }
 
@@ -116,79 +116,95 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Product Catalog"),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.shopping_basket,
-              color: Colors.white,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 30, 0),
+            child: IconButton(
+              icon: Icon(
+                Icons.shopping_basket,
+                color: Colors.white,
+              ),
+              onPressed: () async {
+                //pass some values into the next screen
+                // return productID to remove
+                var productID = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BasketPage(
+                            basket: basketData,
+                            catalog: productData,
+                            list: basketItems,
+                            userid: userID,
+                          )),
+                );
+                removeBasketItem(productID);
+              },
             ),
-            onPressed: () async {
-              //pass some values into the next screen
-              // return productID to remove
-              var productID = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => BasketPage(
-                          basket: basketData,
-                          catalog: productData,
-                          list: basketItems,
-                          userid: userID,
-                        )),
-              );
-              removeBasketItem(productID);
-            },
           ),
         ],
       ),
       body: ListView.builder(
         itemCount: productData == null ? 0 : productData.length,
         itemBuilder: (context, int index) {
-          return Card(
-            child: Column(children: <Widget>[
-              ListTile(
-                title: Text(
-                  "${productData[index]["productName"]}",
-                  style: TextStyle(fontSize: 20.0),
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(100, 8, 100, 8),
+            child: Card(
+              child: Column(children: <Widget>[
+                ListTile(
+                  subtitle: Text("${productData[index]["productDepartment"]}"),
+                  title: Text(
+                    "${productData[index]["productName"]}",
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                  trailing: Text(
+                    productData[index]["productRating"] + "/5",
+                    style: TextStyle(fontSize: 20, wordSpacing: 1),
+                  ),
                 ),
-                trailing: Text(productData[index]["productRating"] + "/5"),
-              ),
-              ListTile(
-                leading: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    SmoothStarRating(
-                        allowHalfRating: false,
-                        onRatingChanged: (v) {
-                          rating = v;
-                          createRating(productData[index]["_id"].toString(),
-                              rating.toString());
-                          print(rating);
-                          //setState(() {});
-                        },
-                        starCount: 5,
-                        rating: double.parse(productData[index]["productRating"]),
-                        //   double.parse(productData[index]["productRating"]),
-                        size: 40.0,
-                        color: Colors.green,
-                        borderColor: Colors.green,
-                        spacing: 0.0),
-                  ],
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text("£${productData[index]["productPrice"]}"),
-                    IconButton(
-                        onPressed: () =>
-                            addToDelete(productData[index]["_id"].toString()),
-                        icon: Icon(
-                          Icons.shopping_basket,
+                ListTile(
+                  leading: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      SmoothStarRating(
+                          allowHalfRating: false,
+                          onRatingChanged: (v) {
+                            rating = v;
+                            createRating(productData[index]["_id"].toString(),
+                                rating.toString());
+                            print(rating);
+                            //setState(() {});
+                          },
+                          starCount: 5,
+                          rating:
+                              double.parse(productData[index]["productRating"]),
+                          size: 40.0,
                           color: Colors.green,
-                        ))
-                  ],
-                ),
-              )
-            ]),
+                          borderColor: Colors.green,
+                          spacing: 0.0),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 20, 15),
+                        child: Text("£${productData[index]["productPrice"]}", style: TextStyle(fontSize: 16),),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+                        child: IconButton(
+                            onPressed: () =>
+                                addToDelete(productData[index]["_id"].toString()),
+                            icon: Icon(
+                              Icons.shopping_basket,
+                              color: Colors.green,
+                            )),
+                      )
+                    ],
+                  ),
+                )
+              ]),
+            ),
           );
         },
       ),
@@ -270,30 +286,33 @@ class _BasketPageState extends State<BasketPage> {
       body: ListView.builder(
         itemCount: tags.length,
         itemBuilder: (context, index) {
-          return Card(
-              child: Column(
-            children: <Widget>[
-              ListTile(
-                title: Row(
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(Icons.delete_forever),
-                      onPressed: () {
-                        Navigator.pop(context, tags[index].toString());
-                      },
-                      iconSize: 30,
-                    ),
-                    Text(
-                      _getBasketItem(index),
-                      style: TextStyle(fontSize: 15.0),
-                    )
-                  ],
-                ),
-                trailing: Text("£" + _getBasketPrice(index).toString(),
-                    style: TextStyle(fontSize: 16.0)),
-              )
-            ],
-          ));
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(100, 8, 100, 8),
+            child: Card(
+                child: Column(
+              children: <Widget>[
+                ListTile(
+                  title: Row(
+                    children: <Widget>[
+                      IconButton(
+                        icon: Icon(Icons.delete_forever),
+                        onPressed: () {
+                          Navigator.pop(context, tags[index].toString());
+                        },
+                        iconSize: 30,
+                      ),
+                      Text(
+                        _getBasketItem(index),
+                        style: TextStyle(fontSize: 15.0),
+                      )
+                    ],
+                  ),
+                  trailing: Text("£" + _getBasketPrice(index).toString(),
+                      style: TextStyle(fontSize: 16.0)),
+                )
+              ],
+            )),
+          );
         },
       ),
       bottomNavigationBar: Padding(
