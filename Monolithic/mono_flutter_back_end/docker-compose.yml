@@ -1,0 +1,25 @@
+version: '2.1'
+
+services:
+  mono_flutter_back_end:
+    image: jackhammond/fyp:mono-flutter-back-end
+    build: .
+    command: node src/index.js
+    ports:
+      - "4000:4000"
+    depends_on:
+        - mongo-flutter-back-end
+  mongo-flutter-back-end:
+      image: mongo 
+      container_name: mongo-flutter-back-end 
+      environment:
+        - MONGO_DATA_DIR=/data/db
+        - MONGO_LOG_DIR=/dev/null
+      volumes:
+        - ./data:/data
+      ports: 
+        - "27017:27017"
+      command: mongod start
+      command: mongod --logpath=/dev/null # --quiet
+      
+      

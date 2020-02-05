@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 async function connect(){
-    await mongoose.connect('mongodb://localhost/mono-flutter-db',{
+    await mongoose.connect('mongodb://mongo-flutter-back-end:27017/mono-flutter-db',{
         useNewUrlParser: true, useFindAndModify:false
     });
     console.log('Database: Connected');
