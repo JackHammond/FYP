@@ -33,7 +33,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       productData = data['products'];
     });
-    return productData;
   }
 
   getBasket() async {
@@ -53,7 +52,7 @@ class _HomePageState extends State<HomePage> {
     getBasket();
   }
 
-  addToDelete(String productID) {
+  addOrDelete(String productID) {
     if (basketID == null) {
       createBasket(userID, productID);
     } else {
@@ -124,8 +123,7 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.white,
               ),
               onPressed: () async {
-                //pass some values into the next screen
-                // return productID to remove
+                //pass product values and return selected productID for removal 
                 var productID = await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -194,7 +192,7 @@ class _HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                         child: IconButton(
                             onPressed: () =>
-                                addToDelete(productData[index]["_id"].toString()),
+                                addOrDelete(productData[index]["_id"].toString()),
                             icon: Icon(
                               Icons.shopping_basket,
                               color: Colors.green,
@@ -235,9 +233,11 @@ class _BasketPageState extends State<BasketPage> {
   List<String> tags = List<String>();
 
   _decodeBasket() {
+    if(widget.basket[0]["savedProduct_IDs"].toString()!= null){
     String recievedJson = widget.basket[0]["savedProduct_IDs"].toString();
     var tagsJson = jsonDecode(recievedJson);
     tags = tagsJson != null ? List.from(tagsJson) : null;
+    }
   }
 
   _totalBasket() async {
