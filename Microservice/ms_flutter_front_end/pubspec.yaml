@@ -24,7 +24,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   http: ^0.12.0+2 
-  uuid: ^2.0.4
+  smooth_star_rating: 1.0.4+1
+
+
  
 dev_dependencies:
   flutter_test:

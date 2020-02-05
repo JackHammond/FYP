@@ -1,9 +1,8 @@
 import 'dart:convert';
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:uuid/uuid.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 void main() {
   runApp(
@@ -22,18 +21,14 @@ class _HomePageState extends State<HomePage> {
   Map data;
   List productData;
   List basketData;
+  var rating = 0.0;
   List<String> basketItems = List<String>();
-  //static var uuid = Uuid();
-  //final String userID = uuid.v1();
+  String basketID;
   final String userID = "5e2c8c86e5413e350c164d26";
 
-  setUserID() {
-    var uuid = Uuid();
-    return uuid.v1();
-  }
-
   getProducts() async {
-    http.Response response = await http.get('http://localhost:8762/catalog/');
+    http.Response response =
+        await http.get('http://35.242.134.188:8762/catalog/');
     data = json.decode(response.body);
     setState(() {
       productData = data['products'];
@@ -42,10 +37,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   getBasket() async {
-    http.Response response = await http.get('http://localhost:8762/basket/');
+    http.Response response =
+        await http.get('http://35.242.134.188:8762/basket/');
     data = json.decode(response.body);
     setState(() {
       basketData = data['baskets'];
+      basketID = basketData[0]["_id"];
     });
   }
 
@@ -56,34 +53,19 @@ class _HomePageState extends State<HomePage> {
     getBasket();
   }
 
-  addToBasket(String productID) {
-    String basketID;
-    bool basketExists = false;
-    if (basketData == null) {
+  addToDelete(String productID) {
+    if (basketID == null) {
       createBasket(userID, productID);
-    }
-    for (int i = 0; i < basketData.length; i++) {
-      if (basketData[i]["user_ID"] == userID) {
-        basketID = basketData[i]["_id"];
-        print("Basket Data");
-        basketExists = true;
-        break;
-      } else {
-        basketExists = false;
-      }
-    }
-    if (basketExists) {
+    } else {
       updateBasket(basketID, productID);
       print("BasketID: " + basketID);
-    } else {
-      createBasket(userID, productID);
     }
   }
 
   createBasket(String userID, String productID) async {
     basketItems.add(productID);
     http.Response response = await http
-        .post('http://localhost:8762/basket/create', body: {
+        .post('http://35.242.134.188:8762/basket/create', body: {
       "user_ID": userID,
       "savedProduct_IDs": json.encode(basketItems)
     });
@@ -94,7 +76,7 @@ class _HomePageState extends State<HomePage> {
     basketItems.add(productID);
     print(basketItems.toString());
     http.Response response = await http.put(
-        'http://localhost:8762/basket/update',
+        'http://35.242.134.188:8762/basket/update',
         body: {"_id": basketID, "savedProduct_IDs": json.encode(basketItems)});
     getBasket();
   }
@@ -104,21 +86,22 @@ class _HomePageState extends State<HomePage> {
       print("Removed: " + productID.toString());
       basketItems.remove(productID);
     }
-    print("Current Basket: " + basketItems.toString());
+    print("Updated Basket: " + basketItems.toString());
     http.Response response = await http.put(
-        'http://localhost:8762/basket/update',
-        body: {"_id": userID, "savedProduct_IDs": json.encode(basketItems)});
+        'http://35.242.134.188:8762/basket/update',
+        body: {"_id": basketID, "savedProduct_IDs": json.encode(basketItems)});
     getBasket();
   }
 
   getAverageRating(String productID) async {
-    http.Response response = await http
-        .put("http://localhost:8762/review/average", body: {"_id": productID});
+    http.Response response = await http.put(
+        "http://35.242.134.188:8762/review/average",
+        body: {"_id": productID});
     print(response.body);
   }
 
   createRating(String productID, String rating) async {
-    await http.post('http://localhost:8762/review/create',
+    await http.post('http://35.242.134.188:8762/review/create',
         body: {"_id": productID, "productRating": rating});
     print(productID + " Review created");
     //re calculate average for the product
@@ -139,6 +122,8 @@ class _HomePageState extends State<HomePage> {
               color: Colors.white,
             ),
             onPressed: () async {
+              //pass some values into the next screen
+              // return productID to remove
               var productID = await Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -171,82 +156,22 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SizedBox(
-                        width: 20,
-                        height: 50.0,
-                        child: GestureDetector(
-                          onTap: () {
-                            createRating(
-                                productData[index]["_id"].toString(), "1");
-                          },
-                          child: Container(
-                              color: Colors.green,
-                              child: Center(child: Text("1"))),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                          width: 20,
-                          height: 50.0,
-                          child: GestureDetector(
-                            onTap: () {
-                              createRating(
-                                  productData[index]["_id"].toString(), "2");
-                            },
-                            child: Container(
-                                color: Colors.green,
-                                child: Center(child: Text("2"))),
-                          ),
-                        )),
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                          width: 20,
-                          height: 50.0,
-                          child: GestureDetector(
-                            onTap: () {
-                              createRating(
-                                  productData[index]["_id"].toString(), "3");
-                            },
-                            child: Container(
-                                color: Colors.green,
-                                child: Center(child: Text("3"))),
-                          ),
-                        )),
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                          width: 20,
-                          height: 50.0,
-                          child: GestureDetector(
-                            onTap: () {
-                              createRating(
-                                  productData[index]["_id"].toString(), "4");
-                            },
-                            child: Container(
-                                color: Colors.green,
-                                child: Center(child: Text("4"))),
-                          ),
-                        )),
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                          width: 20,
-                          height: 50.0,
-                          child: GestureDetector(
-                            onTap: () {
-                              createRating(
-                                  productData[index]["_id"].toString(), "5");
-                            },
-                            child: Container(
-                                color: Colors.green,
-                                child: Center(child: Text("5"))),
-                          ),
-                        )),
+                    SmoothStarRating(
+                        allowHalfRating: false,
+                        onRatingChanged: (v) {
+                          rating = v;
+                          createRating(productData[index]["_id"].toString(),
+                              rating.toString());
+                          print(rating);
+                          //setState(() {});
+                        },
+                        starCount: 5,
+                        rating: double.parse(productData[index]["productRating"]),
+                        //   double.parse(productData[index]["productRating"]),
+                        size: 40.0,
+                        color: Colors.green,
+                        borderColor: Colors.green,
+                        spacing: 0.0),
                   ],
                 ),
                 trailing: Row(
@@ -255,7 +180,7 @@ class _HomePageState extends State<HomePage> {
                     Text("£${productData[index]["productPrice"]}"),
                     IconButton(
                         onPressed: () =>
-                            addToBasket(productData[index]["_id"].toString()),
+                            addToDelete(productData[index]["_id"].toString()),
                         icon: Icon(
                           Icons.shopping_basket,
                           color: Colors.green,
@@ -301,10 +226,10 @@ class _BasketPageState extends State<BasketPage> {
 
   _totalBasket() async {
     http.Response response = await http.put(
-        'http://localhost:8762/basket/total',
+        'http://35.242.134.188:8762/basket/total',
         body: {"user_ID": widget.userid});
     totalValue = double.parse(response.body);
-    print(totalValue);
+    //print(response.body);
     setState(() => totalValue = double.parse(response.body));
   }
 
@@ -338,8 +263,6 @@ class _BasketPageState extends State<BasketPage> {
 
   @override
   Widget build(BuildContext context) {
-    //_addPrices();
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Basket"),
@@ -356,7 +279,6 @@ class _BasketPageState extends State<BasketPage> {
                     IconButton(
                       icon: Icon(Icons.delete_forever),
                       onPressed: () {
-                        //removeSelectedBasketItem(index);
                         Navigator.pop(context, tags[index].toString());
                       },
                       iconSize: 30,
