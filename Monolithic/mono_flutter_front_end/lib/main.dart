@@ -169,7 +169,6 @@ class _HomePageState extends State<HomePage> {
       body: ListView.builder(
         itemCount: productData == null ? 0 : productData.length,
         itemBuilder: (context, int index) {
-          findAverageRating(productData[index]["_id"]);
           return Padding(
             padding: const EdgeInsets.fromLTRB(100, 8, 100, 8),
             child: Card(
@@ -195,6 +194,8 @@ class _HomePageState extends State<HomePage> {
                             createRating(productData[index]["_id"].toString(),
                                 rating.toString());
                             print(rating);
+                            findAverageRating(productData[index]["_id"]);
+
                             //setState(() {});
                           },
                           starCount: 5,
