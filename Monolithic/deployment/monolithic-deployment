@@ -2,13 +2,13 @@
 
 						#nodejs backend setup
 
-OAUTH_TOKEN='ff452dfb5f8c421641791e7f40e576920845d8b1'
+#OAUTH_TOKEN='ff452dfb5f8c421641791e7f40e576920845d8b1'
 
-sudo apt update
+#sudo apt update
 
-sudo apt install git
+#sudo apt install git
 
-sudo git clone https://$OAUTH_TOKEN:x-oauth-basic@github.com/JackHammond/FYP.git
+#sudo git clone https://$OAUTH_TOKEN:x-oauth-basic@github.com/JackHammond/FYP.git
 
 sudo curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
