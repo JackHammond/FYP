@@ -74,6 +74,15 @@ services:
         #command: mongod start
         command: mongod start
         command: mongod --logpath=/dev/null # --quiet
+    flutter-front-end:
+        build: ../../ms_flutter_front_end/
+        image: jackhammond/fyp:flutter-front-end
+        container_name: flutter-front-end
+        ports:
+           - "8080:8080"
+        depends_on:
+           - zuul-service
+           - eureka-service
     eureka-service:
         image: jackhammond/fyp:eureka-service
         container_name: eureka-service
