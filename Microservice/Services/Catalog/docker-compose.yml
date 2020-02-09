@@ -79,7 +79,7 @@ services:
         image: jackhammond/fyp:flutter-front-end
         container_name: flutter-front-end
         ports:
-           - "8080:8080"
+           - "8080:80"
         depends_on:
            - zuul-service
            - eureka-service

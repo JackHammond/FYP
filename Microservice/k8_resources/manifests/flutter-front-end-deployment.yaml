@@ -24,7 +24,7 @@ spec:
       - image: jackhammond/fyp:flutter-front-end
         name: flutter-front-end
         ports:
-        - containerPort: 8080
+        - containerPort: 80
         resources: {}
       restartPolicy: Always
 status: {}
