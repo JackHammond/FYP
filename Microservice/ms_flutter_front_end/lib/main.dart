@@ -6,7 +6,10 @@ import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 void main() {
   runApp(
-    MaterialApp(home: HomePage(), debugShowCheckedModeBanner: false,),
+    MaterialApp(
+      home: HomePage(),
+      debugShowCheckedModeBanner: false,
+    ),
   );
 }
 
@@ -123,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.white,
               ),
               onPressed: () async {
-                //pass product values and return selected productID for removal 
+                //pass product values and return selected productID for removal
                 var productID = await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -186,13 +189,16 @@ class _HomePageState extends State<HomePage> {
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 0, 20, 15),
-                        child: Text("£${productData[index]["productPrice"]}", style: TextStyle(fontSize: 16),),
+                        child: Text(
+                          "£${productData[index]["productPrice"]}",
+                          style: TextStyle(fontSize: 16),
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                         child: IconButton(
-                            onPressed: () =>
-                                addOrDelete(productData[index]["_id"].toString()),
+                            onPressed: () => addOrDelete(
+                                productData[index]["_id"].toString()),
                             icon: Icon(
                               Icons.shopping_basket,
                               color: Colors.green,
@@ -233,12 +239,12 @@ class _BasketPageState extends State<BasketPage> {
   List<String> tags = List<String>();
 
   _decodeBasket() {
-    if(widget.basket[0]["savedProduct_IDs"].toString()!= null){
-    String recievedJson = widget.basket[0]["savedProduct_IDs"].toString();
-    var tagsJson = jsonDecode(recievedJson);
-    tags = tagsJson != null ? List.from(tagsJson) : null;
+   // if (widget.basket[0]["savedProduct_IDs"].toString() != null) {
+      String recievedJson = widget.basket[0]["savedProduct_IDs"].toString();
+      var tagsJson = jsonDecode(recievedJson);
+      tags = tagsJson != null ? List.from(tagsJson) : null;
     }
-  }
+  //}
 
   _totalBasket() async {
     http.Response response = await http.put(
