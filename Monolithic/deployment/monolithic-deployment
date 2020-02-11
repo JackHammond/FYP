@@ -1,6 +1,7 @@
 #!/bin/bash
 
 						#nodejs backend setup
+function back-end(){
 
 #OAUTH_TOKEN='ff452dfb5f8c421641791e7f40e576920845d8b1'
 
@@ -25,13 +26,15 @@ npm install forever -g
 npm install forever-monitor
 
 forever start src/index.js
-
+}
 
 						#flutter nginx setup
 
+function front-end() {
+
 cd ~
 
-cd FYP/Monolithic/mono_fluter_front_end
+cd /FYP/Monolithic/mono_fluter_front_end
 
 sudo apt-get clean
 
@@ -43,7 +46,7 @@ sudo git clone https://github.com/flutter/flutter.git /usr/local/flutter
 
 sudo /usr/local/flutter/bin/flutter doctor -v
 
-PATH="$PATH:/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin"
+export PATH="$PATH:/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin"
 
 sudo chown -R $USER:$USER /usr/local/flutter/ 
 
@@ -59,4 +62,7 @@ sudo apt install nginx
 
 sudo cp -r build/web/* /var/www/html/
 
+sudo cp -r build/web/* /usr/share/nginx/html/
+
 sudo systemctl start nginx
+}
