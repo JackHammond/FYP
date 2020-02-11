@@ -36,9 +36,15 @@ sudo forever start src/index.js
 
 function front-end() {
 
-alias front='cd ~/FYP/Monolithic/mono_flutter_front_end/'
+curl http://localhost:4000/api/catalog/delete
 
-front
+curl http://localhost:4000/api/catalog/create
+
+curl http://localhost:4000/api/catalog/
+
+#alias front='cd ~/FYP/Monolithic/mono_flutter_front_end/'
+
+#front
 
 sudo apt-get clean
 
@@ -47,6 +53,10 @@ sudo apt-get install -y curl git wget unzip libgconf-2-4 gdb libstdc++6 libglu1-
 sudo apt-get clean
 
 sudo git clone https://github.com/flutter/flutter.git /usr/local/flutter
+
+cd ~
+
+cd FYP/Monolithic/mono_flutter_front_end/ 
 
 /usr/local/flutter/bin/flutter doctor -v
 
@@ -61,6 +71,11 @@ flutter channel master
 flutter upgrade
 
 flutter config --enable-web
+
+
+cd ~
+
+cd FYP/Monolithic/mono_flutter_front_end/ 
 
 /usr/local/flutter/bin/flutter build web
 
