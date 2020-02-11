@@ -11,30 +11,34 @@ function back-end(){
 
 #sudo git clone https://$OAUTH_TOKEN:x-oauth-basic@github.com/JackHammond/FYP.git
 
+cd ~
+
 sudo curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
 sudo apt install nodejs
 
 sudo apt install -y mongodb
 
+cd ~
+
 cd FYP/Monolithic/mono_flutter_back_end/ 
 
-npm install
+sudo npm install
 
-npm install forever -g
+sudo npm install forever -g
 
-npm install forever-monitor
+sudo npm install forever-monitor
 
-forever start src/index.js
+sudo forever start src/index.js
 }
 
 						#flutter nginx setup
 
 function front-end() {
 
-cd ~
+alias front='cd ~/FYP/Monolithic/mono_flutter_front_end/'
 
-cd /FYP/Monolithic/mono_fluter_front_end
+front
 
 sudo apt-get clean
 
@@ -44,11 +48,13 @@ sudo apt-get clean
 
 sudo git clone https://github.com/flutter/flutter.git /usr/local/flutter
 
-sudo /usr/local/flutter/bin/flutter doctor -v
+/usr/local/flutter/bin/flutter doctor -v
 
 export PATH="$PATH:/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin"
 
-sudo chown -R $USER:$USER /usr/local/flutter/ 
+sudo chown -R $USER:$USER /usr/local/flutter/
+
+sudo chown -R $USER:$USER . 
 
 flutter channel master
 
