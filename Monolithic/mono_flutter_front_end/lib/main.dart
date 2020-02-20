@@ -30,12 +30,8 @@ class _HomePageState extends State<HomePage> {
   final String userID = "5e2c8c86e5413e350c164d26";
 
   getProducts() async {
-<<<<<<< HEAD
-    http.Response response = await http.get('http://localhost:4000/api/catalog',
-=======
     http.Response response =
         await http.get('http://34.89.19.193:4000/api/catalog',
->>>>>>> 463007cf1b66d659de4b0920590dd8959641fec1
         headers: {'Access-Control-Allow-Origin': '*'});
     data = json.decode(response.body);
     setState(() {
