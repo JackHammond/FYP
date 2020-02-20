@@ -30,7 +30,12 @@ class _HomePageState extends State<HomePage> {
   final String userID = "5e2c8c86e5413e350c164d26";
 
   getProducts() async {
+<<<<<<< HEAD
     http.Response response = await http.get('http://localhost:4000/api/catalog',
+=======
+    http.Response response =
+        await http.get('http://34.89.19.193:4000/api/catalog',
+>>>>>>> 463007cf1b66d659de4b0920590dd8959641fec1
         headers: {'Access-Control-Allow-Origin': '*'});
     data = json.decode(response.body);
     setState(() {
@@ -39,7 +44,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   getReviews() async {
-    http.Response response = await http.get('http://localhost:4000/api/review');
+    http.Response response = await http.get('http://34.89.19.193:4000/api/review');
     data = json.decode(response.body);
     setState(() {
       productReview = data['reviews'];
@@ -47,7 +52,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   getBasket() async {
-    http.Response response = await http.get('http://localhost:4000/api/basket');
+    http.Response response = await http.get('http://34.89.19.193:4000/api/basket');
     data = json.decode(response.body);
     setState(() {
       productBasket = data['baskets'];
@@ -65,7 +70,7 @@ class _HomePageState extends State<HomePage> {
 
   createRating(String productID, String rating) async {
     http.Response response = await http.post(
-        'http://localhost:4000/api/review/create',
+        'http://34.89.19.193:4000/api/review/create',
         body: {"_id": productID, "productRating": rating});
     getProducts(); //this will refresh the product catalog list
     getReviews(); //this will refresh the review list
@@ -83,7 +88,7 @@ class _HomePageState extends State<HomePage> {
   createBasket(String userID, String productID) async {
     basketItems.add(productID);
     http.Response response = await http
-        .post('http://localhost:4000/api/basket/create', body: {
+        .post('http://34.89.19.193:4000/api/basket/create', body: {
       "user_ID": userID,
       "savedProduct_IDs": json.encode(basketItems)
     });
@@ -94,7 +99,7 @@ class _HomePageState extends State<HomePage> {
     basketItems.add(productID);
     print(basketItems.toString());
     http.Response response = await http.put(
-        'http://localhost:4000/api/basket/update',
+        'http://34.89.19.193:4000/api/basket/update',
         body: {"_id": basketID, "savedProduct_IDs": json.encode(basketItems)});
     getBasket();
   }
@@ -106,7 +111,7 @@ class _HomePageState extends State<HomePage> {
     }
     print("Updated Basket: " + basketItems.toString());
     http.Response response = await http.put(
-        'http://localhost:4000/api/basket/update',
+        'http://34.89.19.193:4000/api/basket/update',
         body: {"_id": basketID, "savedProduct_IDs": json.encode(basketItems)});
     getBasket();
   }
@@ -114,7 +119,7 @@ class _HomePageState extends State<HomePage> {
   //monolithic logic for REVIEW - post average review rating
   updateProductRating(String listitem, String rating) async {
     http.Response response = await http.put(
-        "http://localhost:4000/api/catalog/rating",
+        "http://34.89.19.193:4000/api/catalog/rating",
         body: {"_id": listitem, "productRating": rating});
   }
 

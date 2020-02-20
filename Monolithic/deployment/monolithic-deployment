@@ -1,6 +1,7 @@
 #!/bin/bash
 
 						#nodejs backend setup
+function back-end(){
 
 #OAUTH_TOKEN='ff452dfb5f8c421641791e7f40e576920845d8b1'
 
@@ -10,28 +11,40 @@
 
 #sudo git clone https://$OAUTH_TOKEN:x-oauth-basic@github.com/JackHammond/FYP.git
 
+cd ~
+
 sudo curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
 sudo apt install nodejs
 
 sudo apt install -y mongodb
 
+cd ~
+
 cd FYP/Monolithic/mono_flutter_back_end/ 
 
-npm install
+sudo npm install
 
-npm install forever -g
+sudo npm install forever -g
 
-npm install forever-monitor
+sudo npm install forever-monitor
 
-forever start src/index.js
-
+sudo forever start src/index.js
+}
 
 						#flutter nginx setup
 
-cd ~
+function front-end() {
 
-cd FYP/Monolithic/mono_fluter_front_end
+curl http://localhost:4000/api/catalog/delete
+
+curl http://localhost:4000/api/catalog/create
+
+curl http://localhost:4000/api/catalog/
+
+#alias front='cd ~/FYP/Monolithic/mono_flutter_front_end/'
+
+#front
 
 sudo apt-get clean
 
@@ -41,11 +54,17 @@ sudo apt-get clean
 
 sudo git clone https://github.com/flutter/flutter.git /usr/local/flutter
 
-sudo /usr/local/flutter/bin/flutter doctor -v
+cd ~
 
-PATH="$PATH:/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin"
+cd FYP/Monolithic/mono_flutter_front_end/ 
 
-sudo chown -R $USER:$USER /usr/local/flutter/ 
+/usr/local/flutter/bin/flutter doctor -v
+
+export PATH="$PATH:/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin"
+
+sudo chown -R $USER:$USER /usr/local/flutter/
+
+sudo chown -R $USER:$USER . 
 
 flutter channel master
 
@@ -53,10 +72,18 @@ flutter upgrade
 
 flutter config --enable-web
 
+
+cd ~
+
+cd FYP/Monolithic/mono_flutter_front_end/ 
+
 /usr/local/flutter/bin/flutter build web
 
 sudo apt install nginx
 
 sudo cp -r build/web/* /var/www/html/
 
+sudo cp -r build/web/* /usr/share/nginx/html/
+
 sudo systemctl start nginx
+}
