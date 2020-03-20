@@ -31,7 +31,11 @@ class _HomePageState extends State<HomePage> {
 
   getProducts() async {
     http.Response response =
+<<<<<<< HEAD
         await http.get('http://35.242.182.198:8762/catalog/');
+=======
+        await http.get('http://35.246.79.79:8762/catalog/');
+>>>>>>> 75eb633795c680eada5c5b9a48fb4df3987977c2
     data = json.decode(response.body);
     setState(() {
       productData = data['products'];
@@ -40,7 +44,11 @@ class _HomePageState extends State<HomePage> {
 
   getBasket() async {
     http.Response response =
+<<<<<<< HEAD
         await http.get('http://35.242.182.198:8762/basket/');
+=======
+        await http.get('http://35.246.79.79:8762/basket/');
+>>>>>>> 75eb633795c680eada5c5b9a48fb4df3987977c2
     data = json.decode(response.body);
     setState(() {
       basketData = data['baskets'];
@@ -67,7 +75,11 @@ class _HomePageState extends State<HomePage> {
   createBasket(String userID, String productID) async {
     basketItems.add(productID);
     http.Response response = await http
+<<<<<<< HEAD
         .post('http://35.242.182.198:8762/basket/create', body: {
+=======
+        .post('http://35.246.79.79:8762/basket/create', body: {
+>>>>>>> 75eb633795c680eada5c5b9a48fb4df3987977c2
       "user_ID": userID,
       "savedProduct_IDs": json.encode(basketItems)
     });
@@ -78,7 +90,11 @@ class _HomePageState extends State<HomePage> {
     basketItems.add(productID);
     print(basketItems.toString());
     http.Response response = await http.put(
+<<<<<<< HEAD
         'http://35.242.182.198:8762/basket/update',
+=======
+        'http://35.246.79.79:8762/basket/update',
+>>>>>>> 75eb633795c680eada5c5b9a48fb4df3987977c2
         body: {"_id": basketID, "savedProduct_IDs": json.encode(basketItems)});
     getBasket();
   }
@@ -90,20 +106,32 @@ class _HomePageState extends State<HomePage> {
     }
     print("Updated Basket: " + basketItems.toString());
     http.Response response = await http.put(
+<<<<<<< HEAD
         'http://35.242.182.198:8762/basket/update',
+=======
+        'http://35.246.79.79:8762/basket/update',
+>>>>>>> 75eb633795c680eada5c5b9a48fb4df3987977c2
         body: {"_id": basketID, "savedProduct_IDs": json.encode(basketItems)});
     getBasket();
   }
 
   getAverageRating(String productID) async {
     http.Response response = await http.put(
+<<<<<<< HEAD
         "http://35.242.182.198:8762/review/average",
+=======
+        "http://35.246.79.79:8762/review/average",
+>>>>>>> 75eb633795c680eada5c5b9a48fb4df3987977c2
         body: {"_id": productID});
     print(response.body);
   }
 
   createRating(String productID, String rating) async {
+<<<<<<< HEAD
     await http.post('http://35.242.182.198:8762/review/create',
+=======
+    await http.post('http://35.246.79.79:8762/review/create',
+>>>>>>> 75eb633795c680eada5c5b9a48fb4df3987977c2
         body: {"_id": productID, "productRating": rating});
     print(productID + " Review created");
     //re calculate average for the product
