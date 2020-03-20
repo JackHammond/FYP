@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
 
   getProducts() async {
     http.Response response =
-        await http.get('http://35.242.134.188:8762/catalog/');
+        await http.get('http://35.242.182.198:8762/catalog/');
     data = json.decode(response.body);
     setState(() {
       productData = data['products'];
@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
 
   getBasket() async {
     http.Response response =
-        await http.get('http://35.242.134.188:8762/basket/');
+        await http.get('http://35.242.182.198:8762/basket/');
     data = json.decode(response.body);
     setState(() {
       basketData = data['baskets'];
@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
   createBasket(String userID, String productID) async {
     basketItems.add(productID);
     http.Response response = await http
-        .post('http://35.242.134.188:8762/basket/create', body: {
+        .post('http://35.242.182.198:8762/basket/create', body: {
       "user_ID": userID,
       "savedProduct_IDs": json.encode(basketItems)
     });
@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> {
     basketItems.add(productID);
     print(basketItems.toString());
     http.Response response = await http.put(
-        'http://35.242.134.188:8762/basket/update',
+        'http://35.242.182.198:8762/basket/update',
         body: {"_id": basketID, "savedProduct_IDs": json.encode(basketItems)});
     getBasket();
   }
@@ -90,20 +90,20 @@ class _HomePageState extends State<HomePage> {
     }
     print("Updated Basket: " + basketItems.toString());
     http.Response response = await http.put(
-        'http://35.242.134.188:8762/basket/update',
+        'http://35.242.182.198:8762/basket/update',
         body: {"_id": basketID, "savedProduct_IDs": json.encode(basketItems)});
     getBasket();
   }
 
   getAverageRating(String productID) async {
     http.Response response = await http.put(
-        "http://35.242.134.188:8762/review/average",
+        "http://35.242.182.198:8762/review/average",
         body: {"_id": productID});
     print(response.body);
   }
 
   createRating(String productID, String rating) async {
-    await http.post('http://35.242.134.188:8762/review/create',
+    await http.post('http://35.242.182.198:8762/review/create',
         body: {"_id": productID, "productRating": rating});
     print(productID + " Review created");
     //re calculate average for the product
@@ -248,7 +248,7 @@ class _BasketPageState extends State<BasketPage> {
 
   _totalBasket() async {
     http.Response response = await http.put(
-        'http://35.242.134.188:8762/basket/total',
+        'http://35.242.182.198:8762/basket/total',
         body: {"user_ID": widget.userid});
     totalValue = double.parse(response.body);
     //print(response.body);
