@@ -1,7 +1,0 @@
-#!/bin/bash
-
-read -r -p 'Commit message: ' desc  # prompt user for commit message
-sudo git add -A                          # track all files
-#git add -u                          # track deletes
-sudo git commit -m "$desc"               # commit with message
-sudo git push origin master              # push to origin
