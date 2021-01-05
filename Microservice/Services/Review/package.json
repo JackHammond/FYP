@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "axios": "^0.19.1",
+    "axios": "^0.21.1",
     "cors": "^2.8.5",
     "eureka-js-client": "^4.5.0",
     "faker": "^4.1.0",
